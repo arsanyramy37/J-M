@@ -184,30 +184,8 @@ window.addEventListener('load', () => {
   }, 300);
 });
 
-// ► لو المتصفح منع التشغيل تلقائيًا — نعيد المحاولة أول ما يحصل تفاعل
-const retryAutoplay = (event) => {
-  if (event && event.target && event.target.closest('#music-toggle')) {
-    return;
-  }
-
-  if (!musicStarted && !manualPause) {
-    startMusic();
-  }
-};
-
-document.addEventListener('click', retryAutoplay, {
-  once: false,
-  passive: true,
-});
-document.addEventListener('touchstart', retryAutoplay, {
-  once: false,
-  passive: true,
-});
-document.addEventListener('scroll', retryAutoplay, {
-  once: false,
-  passive: true,
-});
-document.addEventListener('keydown', retryAutoplay, { once: false });
+// ► عندما تمتلك الصفحة أول فتح، نحاول التشغيل مباشرة من البداية
+// ولا يوجد retry على لمس/ضغط خارج الزرار لأن المطلوب هو التشغيل فورًا
 
 // ► لما الأغنية تخلص — نرجع من البداية ونشغّلها تانى
 bgMusic.addEventListener('ended', () => {
