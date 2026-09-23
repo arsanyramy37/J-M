@@ -117,10 +117,85 @@ document.getElementById('rsvpForm').addEventListener('submit', (e) => {
 document.getElementById('year').textContent = new Date().getFullYear();
 
 /* Reset parallax transform when switching back to mobile on resize */
-window.addEventListener('resize', () => {
-  if (innerWidth > 900 && mobileMenu.classList.contains('open')) closeMenu();
-  // Reset transform on mobile so the CSS baseline transform is in control
-  if (isMobile()) {
-    heroScript.style.transform = 'translateX(-50%)';
+window.addEventListener(
+  'resize',
+  () => {
+    if (innerWidth > 900 && mobileMenu.classList.contains('open')) closeMenu();
+    // Reset transform on mobile so the CSS baseline transform is in control
+    if (isMobile()) {
+      heroScript.style.transform = 'translateX(-50%)';
+    }
+  },
+  { passive: true },
+);
+// ===== Background Music =====
+const bgMusic = document.getElementById('bgMusic');
+const musicToggle = document.getElementById('music-toggle');
+
+// ► Configuration — غيّر من هنا
+const musicStart = 172; // وقت البداية بالثوانى (2:52)
+const musicVolume = 0.3; // مستوى الصوت (0.0 – 1.0)
+
+bgMusic.volume = musicVolume;
+let musicStarted = false; // هل الاغنية اتشغلت قبل كده
+
+// ► دالة تشغيل الموسيقى — بتبدأ من الثانية المحددة
+function startMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+  bgMusic.currentTime = musicStart;
+  bgMusic
+    .play()
+    .then(() => {
+      musicToggle.textContent = '🔊';
+    })
+    .catch(() => {
+      musicStarted = false; // لو فشل نحاول تانى
+    });
+}
+
+// ► محاولة autoplay فورية
+bgMusic.currentTime = musicStart;
+bgMusic
+  .play()
+  .then(() => {
+    musicStarted = true;
+    musicToggle.textContent = '🔊';
+  })
+  .catch(() => {
+    // المتصفح منع التشغيل التلقائى — هنشغلها أول ما المستخدم يتفاعل
+    console.log('Autoplay blocked – waiting for first user interaction');
+    const forcePlay = () => {
+      startMusic();
+      document.removeEventListener('click', forcePlay);
+      document.removeEventListener('touchstart', forcePlay);
+      document.removeEventListener('scroll', forcePlay);
+      document.removeEventListener('keydown', forcePlay);
+    };
+    document.addEventListener('click', forcePlay, { once: false });
+    document.addEventListener('touchstart', forcePlay, { once: false });
+    document.addEventListener('scroll', forcePlay, {
+      once: false,
+      passive: true,
+    });
+    document.addEventListener('keydown', forcePlay, { once: false });
+  });
+
+// ► لما الأغنية تخلص — نرجع للجزء المحدد ونعيد تشغيله
+bgMusic.addEventListener('ended', () => {
+  bgMusic.currentTime = musicStart;
+  bgMusic.play();
+});
+
+// ► زرار التشغيل / الإيقاف (أيقونة سماعة)
+musicToggle.addEventListener('click', (e) => {
+  e.stopPropagation(); // عشان ما يتعارضش مع forcePlay
+  if (bgMusic.paused) {
+    bgMusic.currentTime = bgMusic.currentTime || musicStart;
+    bgMusic.play();
+    musicToggle.textContent = '🔊';
+  } else {
+    bgMusic.pause();
+    musicToggle.textContent = '🔇';
   }
-}, { passive: true });
+});
