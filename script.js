@@ -139,6 +139,7 @@ bgMusic.volume = musicVolume;
 bgMusic.loop = true;
 let musicStarted = false; // هل الاغنية اتشغلت قبل كده
 let pausedAt = 0; // نقطة التوقف الحالية
+let manualPause = false; // هل المستخدم أوقفها يدويًا من زر الصوت
 
 // ► دالة تشغيل الموسيقى — بتبدأ من نقطة التوقف أو من البداية أول مرة
 function startMusic() {
@@ -151,6 +152,7 @@ function startMusic() {
     playPromise
       .then(() => {
         musicStarted = true;
+        manualPause = false;
         musicToggle.textContent = '🔊';
       })
       .catch(() => {
@@ -169,7 +171,7 @@ window.addEventListener('load', () => {
 
 // ► لو المتصفح منع التشغيل تلقائيًا — نعيد المحاولة أول ما يحصل تفاعل
 const retryAutoplay = () => {
-  if (!musicStarted) {
+  if (!musicStarted && !manualPause) {
     startMusic();
   }
 };
@@ -205,16 +207,19 @@ musicToggle.addEventListener('click', (e) => {
       .play()
       .then(() => {
         musicStarted = true;
+        manualPause = false;
         musicToggle.textContent = '🔊';
       })
       .catch(() => {
         musicStarted = false;
+        manualPause = true;
         musicToggle.textContent = '🔇';
       });
   } else {
     pausedAt = bgMusic.currentTime || 0;
     bgMusic.pause();
     musicStarted = false;
+    manualPause = true;
     musicToggle.textContent = '🔇';
   }
 });
