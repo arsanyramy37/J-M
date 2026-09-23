@@ -1,10 +1,34 @@
 /* ===== Navbar shrink + back to top ===== */
 const nav = document.getElementById('nav'),
   topBtn = document.getElementById('top');
-window.addEventListener('scroll', () => {
-  nav.classList.toggle('shrink', scrollY > 60);
-  topBtn.classList.toggle('show', scrollY > 600);
-});
+
+/* ===== Parallax للاسم الكبير خلف الفريم ===== */
+const heroScript = document.querySelector('.hero-script');
+const isMobile = () => window.innerWidth <= 900;
+
+// Throttle all scroll work via a single rAF loop
+let ticking = false;
+function onScroll() {
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+
+      // Navbar + back-to-top
+      nav.classList.toggle('shrink', y > 60);
+      topBtn.classList.toggle('show', y > 600);
+
+      // Parallax: only run on desktop to avoid mobile jank
+      if (!isMobile()) {
+        heroScript.style.transform = `translateX(-50%) translateY(${y * 0.25}px)`;
+      }
+
+      ticking = false;
+    });
+    ticking = true;
+  }
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+
 topBtn.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
 
 /* ===== FIX: Mobile menu (موحّد + overlay + قفل السكرول) ===== */
@@ -34,11 +58,7 @@ mobileMenu
   .querySelectorAll('a')
   .forEach((a) => a.addEventListener('click', closeMenu));
 
-/* لو رجع الشاشة لحجم ديسكتوب وهو مفتوح: يقفل تلقائي */
-window.addEventListener('resize', () => {
-  if (innerWidth > 900 && mobileMenu.classList.contains('open'))
-    closeMenu();
-});
+/* لو رجع الشاشة لحجم ديسكتوب وهو مفتوح: يقفل تلقائي — now handled in resize listener below */
 
 /* ===== FIX: اسم البراند كليكابل - يرجع لفوق ===== */
 const brandLink = document.getElementById('brandLink');
@@ -96,8 +116,11 @@ document.getElementById('rsvpForm').addEventListener('submit', (e) => {
 /* ===== Year ===== */
 document.getElementById('year').textContent = new Date().getFullYear();
 
-/* ===== Parallax للاسم الكبير خلف الفريم ===== */
-const script = document.querySelector('.hero-script');
-window.addEventListener('scroll', () => {
-  script.style.transform = `translateX(-50%) translateY(${scrollY * 0.25}px)`;
-});
+/* Reset parallax transform when switching back to mobile on resize */
+window.addEventListener('resize', () => {
+  if (innerWidth > 900 && mobileMenu.classList.contains('open')) closeMenu();
+  // Reset transform on mobile so the CSS baseline transform is in control
+  if (isMobile()) {
+    heroScript.style.transform = 'translateX(-50%)';
+  }
+}, { passive: true });

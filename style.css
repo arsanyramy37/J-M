@@ -16,12 +16,16 @@
 }
 html {
   scroll-behavior: smooth;
+  /* Prevent bouncy over-scroll on iOS which causes jank */
+  overscroll-behavior: none;
 }
 /* FIX: منع أي overflow-x على كل الجهاز */
 html,
 body {
   overflow-x: hidden;
   width: 100%;
+  /* iOS momentum scrolling */
+  -webkit-overflow-scrolling: touch;
 }
 body {
   background: var(--burgundy);
@@ -292,6 +296,9 @@ body::before {
   text-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
   z-index: -1;
   max-width: 96vw;
+  will-change: transform; /* GPU layer promotion */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .hero-meta {
   display: flex;
