@@ -133,69 +133,88 @@ const bgMusic = document.getElementById('bgMusic');
 const musicToggle = document.getElementById('music-toggle');
 
 // ► Configuration — غيّر من هنا
-const musicStart = 172; // وقت البداية بالثوانى (2:52)
 const musicVolume = 0.3; // مستوى الصوت (0.0 – 1.0)
 
 bgMusic.volume = musicVolume;
+bgMusic.loop = true;
 let musicStarted = false; // هل الاغنية اتشغلت قبل كده
+let pausedAt = 0; // نقطة التوقف الحالية
 
-// ► دالة تشغيل الموسيقى — بتبدأ من الثانية المحددة
+// ► دالة تشغيل الموسيقى — بتبدأ من نقطة التوقف أو من البداية أول مرة
 function startMusic() {
-  if (musicStarted) return;
-  musicStarted = true;
-  bgMusic.currentTime = musicStart;
-  bgMusic
-    .play()
-    .then(() => {
-      musicToggle.textContent = '🔊';
-    })
-    .catch(() => {
-      musicStarted = false; // لو فشل نحاول تانى
-    });
+  if (musicStarted || !bgMusic) return;
+
+  bgMusic.currentTime = pausedAt || 0;
+  const playPromise = bgMusic.play();
+
+  if (playPromise) {
+    playPromise
+      .then(() => {
+        musicStarted = true;
+        musicToggle.textContent = '🔊';
+      })
+      .catch(() => {
+        musicStarted = false;
+        console.log('Autoplay blocked – waiting for first user interaction');
+      });
+  }
 }
 
-// ► محاولة autoplay فورية
-bgMusic.currentTime = musicStart;
-bgMusic
-  .play()
-  .then(() => {
-    musicStarted = true;
-    musicToggle.textContent = '🔊';
-  })
-  .catch(() => {
-    // المتصفح منع التشغيل التلقائى — هنشغلها أول ما المستخدم يتفاعل
-    console.log('Autoplay blocked – waiting for first user interaction');
-    const forcePlay = () => {
-      startMusic();
-      document.removeEventListener('click', forcePlay);
-      document.removeEventListener('touchstart', forcePlay);
-      document.removeEventListener('scroll', forcePlay);
-      document.removeEventListener('keydown', forcePlay);
-    };
-    document.addEventListener('click', forcePlay, { once: false });
-    document.addEventListener('touchstart', forcePlay, { once: false });
-    document.addEventListener('scroll', forcePlay, {
-      once: false,
-      passive: true,
-    });
-    document.addEventListener('keydown', forcePlay, { once: false });
-  });
+// ► محاولة autoplay فورية عند تحميل الصفحة
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    startMusic();
+  }, 300);
+});
 
-// ► لما الأغنية تخلص — نرجع للجزء المحدد ونعيد تشغيله
+// ► لو المتصفح منع التشغيل تلقائيًا — نعيد المحاولة أول ما يحصل تفاعل
+const retryAutoplay = () => {
+  if (!musicStarted) {
+    startMusic();
+  }
+};
+
+document.addEventListener('click', retryAutoplay, {
+  once: false,
+  passive: true,
+});
+document.addEventListener('touchstart', retryAutoplay, {
+  once: false,
+  passive: true,
+});
+document.addEventListener('scroll', retryAutoplay, {
+  once: false,
+  passive: true,
+});
+document.addEventListener('keydown', retryAutoplay, { once: false });
+
+// ► لما الأغنية تخلص — نرجع من البداية ونشغّلها تانى
 bgMusic.addEventListener('ended', () => {
-  bgMusic.currentTime = musicStart;
-  bgMusic.play();
+  bgMusic.currentTime = 0;
+  bgMusic.play().catch(() => {});
 });
 
 // ► زرار التشغيل / الإيقاف (أيقونة سماعة)
 musicToggle.addEventListener('click', (e) => {
-  e.stopPropagation(); // عشان ما يتعارضش مع forcePlay
+  e.stopPropagation();
+
   if (bgMusic.paused) {
-    bgMusic.currentTime = bgMusic.currentTime || musicStart;
-    bgMusic.play();
-    musicToggle.textContent = '🔊';
+    pausedAt = bgMusic.currentTime || pausedAt || 0;
+    bgMusic.currentTime = pausedAt;
+    bgMusic
+      .play()
+      .then(() => {
+        musicStarted = true;
+        musicToggle.textContent = '🔊';
+      })
+      .catch(() => {
+        musicStarted = false;
+        musicToggle.textContent = '🔇';
+      });
   } else {
+    pausedAt = bgMusic.currentTime || 0;
     bgMusic.pause();
+    musicStarted = false;
     musicToggle.textContent = '🔇';
   }
 });
