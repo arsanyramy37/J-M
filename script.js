@@ -166,7 +166,22 @@ function startMusic() {
   }
 }
 
-// ► محاولة autoplay فورية عند تحميل الصفحة
+// ► لو ما اتفتحش تلقائيًا بسبب منع المتصفح، أى لمسة على الشاشة تبدأ التشغيل
+const handleFirstTouchToStartMusic = () => {
+  if (manualPause || musicStarted) return;
+  startMusic();
+};
+
+document.addEventListener('pointerdown', handleFirstTouchToStartMusic, {
+  passive: true,
+});
+document.addEventListener('touchstart', handleFirstTouchToStartMusic, {
+  passive: true,
+});
+document.addEventListener('click', handleFirstTouchToStartMusic, {
+  passive: true,
+});
+
 window.addEventListener('load', () => {
   if (window.location.hash) {
     history.replaceState(
@@ -180,12 +195,8 @@ window.addEventListener('load', () => {
 
   setTimeout(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    startMusic();
   }, 300);
 });
-
-// ► لا توجد محاولة تانية بعد التحميل: نبدأ التشغيل فورًا
-// لأن المستخدم طلب أن تعمل الأغنية بمجرد فتح الموقع بدون أي لمس
 
 // ► لما الأغنية تخلص — نرجع من البداية ونشغّلها تانى
 bgMusic.addEventListener('ended', () => {
