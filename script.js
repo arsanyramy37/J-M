@@ -1,4 +1,8 @@
 /* ===== Navbar shrink + back to top ===== */
+if (history.scrollRestoration) {
+  history.scrollRestoration = 'manual';
+}
+
 const nav = document.getElementById('nav'),
   topBtn = document.getElementById('top');
 
@@ -164,13 +168,28 @@ function startMusic() {
 
 // ► محاولة autoplay فورية عند تحميل الصفحة
 window.addEventListener('load', () => {
+  if (window.location.hash) {
+    history.replaceState(
+      null,
+      '',
+      window.location.pathname + window.location.search,
+    );
+  }
+
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+
   setTimeout(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     startMusic();
   }, 300);
 });
 
 // ► لو المتصفح منع التشغيل تلقائيًا — نعيد المحاولة أول ما يحصل تفاعل
-const retryAutoplay = () => {
+const retryAutoplay = (event) => {
+  if (event && event.target && event.target.closest('#music-toggle')) {
+    return;
+  }
+
   if (!musicStarted && !manualPause) {
     startMusic();
   }
