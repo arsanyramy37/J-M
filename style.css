@@ -70,6 +70,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 14px 40px;
   background: rgba(75, 10, 23, 0.55);
   backdrop-filter: blur(12px);
@@ -86,8 +87,18 @@ body::before {
 /* --- روابط الديسكتوب (يمين/شمال) --- */
 .nav-links-desktop {
   display: flex;
+  align-items: center;
   gap: 30px;
   list-style: none;
+  flex: 1;
+}
+
+.nav-links-desktop:first-child {
+  justify-content: flex-start;
+}
+
+.nav-links-desktop:last-of-type {
+  justify-content: flex-end;
 }
 .nav-links-desktop a {
   color: var(--cream);
@@ -127,7 +138,9 @@ body::before {
   border: 0;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  flex: 1 1 auto;
   transition:
     transform 0.35s var(--ease),
     filter 0.35s var(--ease);
@@ -195,6 +208,7 @@ body::before {
   z-index: 110;
   flex-shrink: 0;
   line-height: 1;
+  order: -1;
 }
 .music-toggle:hover {
   background: var(--gold);
@@ -727,12 +741,24 @@ footer a {
 @media (max-width: 900px) {
   .navbar {
     padding: 12px 20px;
+    justify-content: space-between;
   }
   .nav-links-desktop {
     display: none;
   } /* إخفاء الروابط المقسومة */
+  .music-toggle {
+    order: 1;
+    margin-right: auto;
+  }
+  .nav-names {
+    order: 2;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
   .burger {
     display: flex;
+    order: 3;
+    margin-left: 8px;
   }
 
   .nav-links-mobile {
