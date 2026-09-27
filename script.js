@@ -231,3 +231,48 @@ musicToggle.addEventListener('click', (e) => {
     musicToggle.textContent = '🔇';
   }
 });
+
+/* ================================================================
+   INVITATION OVERLAY — فتح الظرف + تشغيل الموسيقى
+   ================================================================ */
+const inviteOverlay = document.getElementById('inviteOverlay');
+const waxSeal = document.getElementById('waxSeal');
+const inviteHint = document.getElementById('inviteHint');
+
+// قفل السكرول لحد ما الدعوة تتفتح
+document.body.classList.add('invite-locked');
+
+let inviteOpened = false;
+waxSeal.addEventListener('click', () => {
+  if (inviteOpened) return;
+  inviteOpened = true;
+
+  // تبديل الصورتين بترانزيشن ناعم
+  inviteOverlay.classList.add('opened');
+  waxSeal.classList.add('gone');
+  inviteHint.classList.add('gone');
+
+  // ► تشغيل الموسيقى إجباريًا بعد تفاعل اليوزر (دوسة الـ open)
+  startMusicFromInvite();
+
+  // ► بعد 3 ثواني من ظهور الصورة المفتوحة → الإخفاء التدريجى
+  setTimeout(() => {
+    inviteOverlay.classList.add('hide');
+    document.body.classList.remove('invite-locked');
+    setTimeout(() => inviteOverlay.remove(), 1200);
+  }, 3000);
+});
+
+function startMusicFromInvite() {
+  if (!bgMusic) return;
+  bgMusic.volume = musicVolume;
+  bgMusic.currentTime = 0;
+  const p = bgMusic.play();
+  if (p && p.then) {
+    p.then(() => {
+      musicStarted = true;
+      manualPause = false;
+      if (musicToggle) musicToggle.textContent = '🔊';
+    }).catch(() => {});
+  }
+}

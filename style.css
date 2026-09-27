@@ -851,3 +851,221 @@ footer a {
     min-width: 60px;
   }
 }
+
+/* ================================================================
+   INVITATION OVERLAY (Envelope intro)
+   ================================================================ */
+.invite-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(16px, 3vw, 28px);
+  background:
+    radial-gradient(
+      ellipse at 50% 35%,
+      rgba(140, 26, 49, 0.55),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 50% 110%,
+      rgba(201, 162, 75, 0.12),
+      transparent 55%
+    ),
+    var(--burgundy-deep);
+  transition:
+    opacity 1.1s var(--ease),
+    visibility 1.1s;
+}
+.invite-overlay.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* الصورتين بيغطوا الشاشة كله — object-fit: cover */
+.invite-img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(88vw, 820px);
+  height: min(82vh, 700px);
+  object-fit: contain;
+  object-position: center;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  transition:
+    opacity 1s var(--ease),
+    transform 1.4s var(--ease);
+  will-change: opacity, transform;
+}
+/* نبضة خفيفة للظرف المقفول */
+.invite-closed {
+  object-position: 50% 61.5%; /* يثبت الختم فى مكانه مهما اتحاصرت الصورة */
+  animation: inviteBreath 7s ease-in-out infinite alternate;
+}
+.invite-opened {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.04);
+}
+.invite-overlay.opened .invite-closed {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.03);
+  animation: none;
+}
+.invite-overlay.opened .invite-opened {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+@keyframes inviteBreath {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.045);
+  }
+}
+
+/* --- ختم الشمع (زرار Open) --- */
+.wax-seal {
+  position: absolute;
+  left: 50%;
+  top: 61.5%; /* فوق الختم الموجود فى الصورة بالظبط */
+  transform: translate(-50%, -50%);
+  width: clamp(72px, 15vw, 108px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(11px, 1.7vw, 14px);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+  background:
+    radial-gradient(
+      circle at 32% 26%,
+      rgba(255, 255, 255, 0.22),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      var(--burgundy-light) 0%,
+      var(--burgundy) 52%,
+      var(--burgundy-deep) 100%
+    );
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.55),
+    inset 0 3px 6px rgba(255, 255, 255, 0.2),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.45);
+  transition:
+    transform 0.35s var(--ease),
+    opacity 0.6s var(--ease),
+    visibility 0.6s;
+  animation: sealPulse 2.4s ease-in-out infinite;
+  z-index: 5;
+}
+/* إطار ذهبى داخلى للختم */
+.wax-seal::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 162, 75, 0.6);
+  box-shadow:
+    inset 0 0 0 3px rgba(75, 10, 23, 0.55),
+    0 0 12px rgba(201, 162, 75, 0.25);
+  pointer-events: none;
+}
+.wax-seal span {
+  position: relative;
+  z-index: 1;
+}
+.wax-seal:hover,
+.wax-seal:focus-visible {
+  transform: translate(-50%, -50%) scale(1.08);
+  outline: none;
+}
+.wax-seal:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+.wax-seal.gone {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.6);
+}
+@keyframes sealPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.55),
+      inset 0 3px 6px rgba(255, 255, 255, 0.2),
+      inset 0 -8px 14px rgba(0, 0, 0, 0.45),
+      0 0 0 0 rgba(201, 162, 75, 0.45);
+  }
+  50% {
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.55),
+      inset 0 3px 6px rgba(255, 255, 255, 0.2),
+      inset 0 -8px 14px rgba(0, 0, 0, 0.45),
+      0 0 0 20px rgba(201, 162, 75, 0);
+  }
+}
+
+/* --- تلميح أسفل الشاشة --- */
+.invite-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  width: 100%;
+  padding: 0 16px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(10px, 1.6vw, 13px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+  opacity: 0.85;
+  transition:
+    opacity 0.6s var(--ease),
+    visibility 0.6s;
+  animation: hintFloat 2.2s ease-in-out infinite;
+  z-index: 5;
+  pointer-events: none;
+}
+.invite-hint.gone {
+  opacity: 0;
+  visibility: hidden;
+}
+@keyframes hintFloat {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px);
+  }
+}
+
+/* قفل السكرول خلف الأوفرلاى */
+body.invite-locked {
+  overflow: hidden;
+}
+
+/* موبايل صغير: الختم ينزل شوية لو الصورة اتحاصرت من فوق */
+@media (max-width: 600px) {
+  .wax-seal {
+    top: 62%;
+  }
+  .invite-closed {
+    object-position: 50% 62%;
+  }
+}

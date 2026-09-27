@@ -16,8 +16,28 @@
     />
 
     <link rel="stylesheet" href="style.css" />
+    <base target="_blank" />
   </head>
   <body>
+    <!-- ================= INVITATION OVERLAY (Envelope intro) ================= -->
+    <div class="invite-overlay" id="inviteOverlay">
+      <img
+        src="assets/imgs/closed.png"
+        alt="Sealed invitation"
+        class="invite-img invite-closed"
+        draggable="false"
+      />
+      <img
+        src="assets/imgs/opened.png"
+        alt="Opened invitation"
+        class="invite-img invite-opened"
+        draggable="false"
+      />
+      <button class="wax-seal" id="waxSeal" aria-label="Open the invitation">
+        <span>Open</span>
+      </button>
+      <p class="invite-hint" id="inviteHint">Tap the seal to open</p>
+    </div>
     <!-- ================= NAVBAR ================= -->
     <nav class="navbar" id="nav">
       <!-- روابط الديسكتوب - شمال -->
