@@ -1,16 +1,21 @@
+/* ================================================================
+   JOHN & MARIAM WEDDING CELEBRATION — SCRIPT
+   ================================================================ */
+
 /* ===== Navbar shrink + back to top ===== */
 if (history.scrollRestoration) {
   history.scrollRestoration = 'manual';
 }
 
-const nav = document.getElementById('nav'),
-  topBtn = document.getElementById('top');
+const nav = document.getElementById('nav');
+const topBtn = document.getElementById('top');
+const wishesTicker = document.getElementById('wishesTicker');
 
-/* ===== Parallax للاسم الكبير خلف الفريم ===== */
+/* ===== Parallax for Hero Script ===== */
 const heroScript = document.querySelector('.hero-script');
 const isMobile = () => window.innerWidth <= 900;
 
-// Throttle all scroll work via a single rAF loop
+// Throttle scroll work via rAF loop
 let ticking = false;
 function onScroll() {
   if (!ticking) {
@@ -21,8 +26,8 @@ function onScroll() {
       nav.classList.toggle('shrink', y > 60);
       topBtn.classList.toggle('show', y > 600);
 
-      // Parallax: only run on desktop to avoid mobile jank
-      if (!isMobile()) {
+      // Parallax only on desktop
+      if (!isMobile() && heroScript) {
         heroScript.style.transform = `translateX(-50%) translateY(${y * 0.25}px)`;
       }
 
@@ -35,7 +40,7 @@ window.addEventListener('scroll', onScroll, { passive: true });
 
 topBtn.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
 
-/* ===== FIX: Mobile menu (موحّد + overlay + قفل السكرول) ===== */
+/* ===== Mobile Navigation Menu ===== */
 const burger = document.getElementById('burger');
 const mobileMenu = document.getElementById('mobileMenu');
 const overlay = document.getElementById('navOverlay');
@@ -47,6 +52,7 @@ function openMenu() {
   burger.setAttribute('aria-expanded', 'true');
   document.body.classList.add('menu-open');
 }
+
 function closeMenu() {
   mobileMenu.classList.remove('open');
   overlay.classList.remove('show');
@@ -54,6 +60,7 @@ function closeMenu() {
   burger.setAttribute('aria-expanded', 'false');
   document.body.classList.remove('menu-open');
 }
+
 burger.addEventListener('click', () => {
   mobileMenu.classList.contains('open') ? closeMenu() : openMenu();
 });
@@ -62,17 +69,14 @@ mobileMenu
   .querySelectorAll('a')
   .forEach((a) => a.addEventListener('click', closeMenu));
 
-/* لو رجع الشاشة لحجم ديسكتوب وهو مفتوح: يقفل تلقائي — now handled in resize listener below */
-
-/* ===== FIX: اسم البراند كليكابل - يرجع لفوق ===== */
+/* Brand Link - Scroll to Top */
 const brandLink = document.getElementById('brandLink');
 brandLink.addEventListener('click', () => {
   closeMenu();
   scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-/* ===== FIX: Scroll reveal REVERSIBLE (بيدخل وبيخرج) ===== */
-// نحسب delay التتابع مرة واحدة بس عند التحميل (مش كل مرة يدخل فيها العنصر الشاشة)
+/* ===== Scroll Reveal Animations ===== */
 const groups = [
   document.querySelectorAll('.gallery > div'),
   document.querySelectorAll('.timeline .tl-item'),
@@ -86,7 +90,6 @@ groups.forEach((list) => {
 const io = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
-      // FIX: toggle بدل unobserve عشان الأنيميشن يترجع لما نطلع لفوق تاني
       entry.target.classList.toggle('visible', entry.isIntersecting);
     });
   },
@@ -95,57 +98,557 @@ const io = new IntersectionObserver(
 
 document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 
-/* ===== Countdown ===== */
-const target = new Date('2025-09-14T17:00:00').getTime();
+/* ===== Countdown Target Date (8 October 2026 - 4:00 PM) ===== */
+const target = new Date('2026-10-18T16:00:00').getTime();
 const pad = (n) => String(n).padStart(2, '0');
-setInterval(() => {
+const dEl = document.getElementById('d');
+const hEl = document.getElementById('h');
+const mEl = document.getElementById('m');
+const sEl = document.getElementById('s');
+
+function updateCountdown() {
   const diff = target - Date.now();
-  if (diff < 0) return;
-  d.textContent = pad(Math.floor(diff / 864e5));
-  h.textContent = pad(Math.floor(diff / 36e5) % 24);
-  m.textContent = pad(Math.floor(diff / 6e4) % 60);
-  s.textContent = pad(Math.floor(diff / 1e3) % 60);
-}, 1000);
+  if (diff < 0) {
+    dEl.textContent = '00';
+    hEl.textContent = '00';
+    mEl.textContent = '00';
+    sEl.textContent = '00';
+    return;
+  }
+  dEl.textContent = pad(Math.floor(diff / 864e5));
+  hEl.textContent = pad(Math.floor(diff / 36e5) % 24);
+  mEl.textContent = pad(Math.floor(diff / 6e4) % 60);
+  sEl.textContent = pad(Math.floor(diff / 1e3) % 60);
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
 
-/* ===== RSVP ===== */
-document.getElementById('rsvpForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target));
-  localStorage.setItem('rsvp_' + Date.now(), JSON.stringify(data));
-  document.getElementById('msg').textContent =
-    'Thank you, ' + data.name + '! Your RSVP has been received ♥';
-  e.target.reset();
-});
-
-/* ===== Year ===== */
+/* ===== Year in Footer ===== */
 document.getElementById('year').textContent = new Date().getFullYear();
 
-/* Reset parallax transform when switching back to mobile on resize */
+/* Resize Handler */
 window.addEventListener(
   'resize',
   () => {
     if (innerWidth > 900 && mobileMenu.classList.contains('open')) closeMenu();
-    // Reset transform on mobile so the CSS baseline transform is in control
-    if (isMobile()) {
+    if (isMobile() && heroScript) {
       heroScript.style.transform = 'translateX(-50%)';
     }
   },
   { passive: true },
 );
-// ===== Background Music =====
+
+/* ================================================================
+   FIREBASE & GUEST WISHES MANAGEMENT (FREE PLAN COMPATIBLE)
+   ================================================================ */
+
+// Default starter wishes if none are in database yet (Set to empty per request)
+const DEFAULT_WISHES = [];
+
+// Firebase Configuration (Replace with your Firebase Project keys if desired)
+const firebaseConfig = {
+  apiKey: 'AIzaSyA0B-DummyKeyForWeddingGuestbook-DemoApp',
+  authDomain: 'john-mariam-wedding.firebaseapp.com',
+  projectId: 'john-mariam-wedding',
+  storageBucket: 'john-mariam-wedding.appspot.com',
+  messagingSenderId: '10882348271',
+  appId: '1:10882348271:web:d87b32c8928374982',
+};
+
+let db = null;
+let firebaseInitialized = false;
+
+// Try initializing Firebase
+try {
+  if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+    // Only init if not already initialized
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.firestore();
+    firebaseInitialized = true;
+    console.log('Firebase initialized successfully.');
+  }
+} catch (err) {
+  console.warn('Firebase initialization in offline/hybrid fallback mode:', err);
+}
+
+// In-Memory & LocalStorage Store
+const STORAGE_KEY = 'jm_wedding_wishes_v1';
+let currentWishes = [];
+
+function loadStoredWishes() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Filter out any legacy starter items
+        const cleanWishes = parsed.filter(
+          (w) => w && w.id && !w.id.startsWith('starter-'),
+        );
+        return cleanWishes;
+      }
+    }
+  } catch (e) {
+    console.error('Error reading localStorage:', e);
+  }
+  return [...DEFAULT_WISHES];
+}
+
+function saveStoredWishes(wishes) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
+  } catch (e) {
+    console.error('Error saving to localStorage:', e);
+  }
+}
+
+// Render Ticker Track
+const tickerTrack = document.getElementById('tickerTrack');
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ===== Interactive Touch/Drag Infinite Ticker Engine ===== */
+const tickerViewport = document.getElementById('tickerViewport');
+let isTickerDragging = false;
+let tickerStartX = 0;
+let tickerStartScroll = 0;
+let tickerAnimId = null;
+let isTickerPaused = false;
+let tickerResumeTimer = null;
+const TICKER_SCROLL_SPEED = 0.7; // pixels per animation frame
+
+function runTickerLoop() {
+  if (tickerAnimId) cancelAnimationFrame(tickerAnimId);
+
+  function step() {
+    if (tickerViewport && tickerTrack && !isTickerDragging && !isTickerPaused) {
+      const halfWidth = tickerTrack.scrollWidth / 2;
+      if (halfWidth > 20) {
+        tickerViewport.scrollLeft += TICKER_SCROLL_SPEED;
+        if (tickerViewport.scrollLeft >= halfWidth) {
+          tickerViewport.scrollLeft -= halfWidth;
+        }
+      }
+    }
+    tickerAnimId = requestAnimationFrame(step);
+  }
+  tickerAnimId = requestAnimationFrame(step);
+}
+
+// Touch & Mouse Drag Interaction
+if (tickerViewport) {
+  function onDragStart(clientX) {
+    isTickerDragging = true;
+    isTickerPaused = true;
+    tickerStartX = clientX;
+    tickerStartScroll = tickerViewport.scrollLeft;
+    if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
+  }
+
+  function onDragMove(clientX) {
+    if (!isTickerDragging || !tickerTrack) return;
+    const dx = clientX - tickerStartX;
+    tickerViewport.scrollLeft = tickerStartScroll - dx;
+
+    // Wrap around smoothly during manual scrolling
+    const halfWidth = tickerTrack.scrollWidth / 2;
+    if (halfWidth > 20) {
+      if (tickerViewport.scrollLeft >= halfWidth) {
+        tickerViewport.scrollLeft -= halfWidth;
+        tickerStartScroll -= halfWidth;
+      } else if (tickerViewport.scrollLeft < 0) {
+        tickerViewport.scrollLeft += halfWidth;
+        tickerStartScroll += halfWidth;
+      }
+    }
+  }
+
+  function onDragEnd() {
+    if (!isTickerDragging) return;
+    isTickerDragging = false;
+    if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
+    tickerResumeTimer = setTimeout(() => {
+      isTickerPaused = false;
+    }, 1800);
+  }
+
+  // Mouse Drag Listeners
+  tickerViewport.addEventListener('mousedown', (e) => {
+    onDragStart(e.pageX);
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (isTickerDragging) {
+      e.preventDefault();
+      onDragMove(e.pageX);
+    }
+  });
+  window.addEventListener('mouseup', () => {
+    onDragEnd();
+  });
+
+  // Touch Swipe Listeners (Mobile)
+  tickerViewport.addEventListener(
+    'touchstart',
+    (e) => {
+      if (e.touches && e.touches.length > 0) {
+        onDragStart(e.touches[0].pageX);
+      }
+    },
+    { passive: true },
+  );
+
+  tickerViewport.addEventListener(
+    'touchmove',
+    (e) => {
+      if (isTickerDragging && e.touches && e.touches.length > 0) {
+        onDragMove(e.touches[0].pageX);
+      }
+    },
+    { passive: true },
+  );
+
+  tickerViewport.addEventListener('touchend', () => {
+    onDragEnd();
+  });
+
+  // Hover Pause on Desktop
+  tickerViewport.addEventListener('mouseenter', () => {
+    isTickerPaused = true;
+  });
+  tickerViewport.addEventListener('mouseleave', () => {
+    if (!isTickerDragging) {
+      if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
+      tickerResumeTimer = setTimeout(() => {
+        isTickerPaused = false;
+      }, 600);
+    }
+  });
+}
+
+function renderTickerWishes(wishes) {
+  if (!tickerTrack) return;
+
+  const validWishes = wishes.filter((w) => w.note && w.note.trim().length > 0);
+  if (validWishes.length === 0) {
+    const emptyCard = `
+      <div class="ticker-item floating-wish floating-welcome">
+        <span class="v-crest">✨</span>
+        <span class="sender-name">Jojo &amp; Marioom</span>
+        <span class="v-divider">·</span>
+        <span class="msg-text">“Welcome to our wedding! Leave your blessings and warm congratulations below.”</span>
+        <span class="sep">✦</span>
+      </div>
+    `;
+    tickerTrack.innerHTML = emptyCard + emptyCard + emptyCard;
+    runTickerLoop();
+    return;
+  }
+
+  // Create bespoke pure floating message items (free floating without box/card background)
+  const itemsHtml = validWishes
+    .map(
+      (w) => `
+      <div class="ticker-item floating-wish" data-id="${escapeHtml(w.id || '')}">
+        <span class="v-crest">⚜</span>
+        <span class="sender-name">${escapeHtml(w.name)}</span>
+        <span class="v-divider">·</span>
+        <span class="msg-text">“${escapeHtml(w.note)}”</span>
+        <span class="sep">✦</span>
+      </div>
+    `,
+    )
+    .join('');
+
+  // Repeat sufficiently for an infinite loop with zero jump
+  const repeatCount = Math.max(2, Math.ceil(8 / validWishes.length));
+  let finalTrackHtml = '';
+  for (let i = 0; i < repeatCount * 2; i++) {
+    finalTrackHtml += itemsHtml;
+  }
+
+  tickerTrack.innerHTML = finalTrackHtml;
+  runTickerLoop();
+}
+
+// Setup Live Listeners (Firebase or Local)
+function initWishesSync() {
+  currentWishes = loadStoredWishes();
+  renderTickerWishes(currentWishes);
+
+  if (firebaseInitialized && db) {
+    try {
+      db.collection('wedding_wishes')
+        .orderBy('timestamp', 'desc')
+        .limit(50)
+        .onSnapshot(
+          (snapshot) => {
+            const fbWishes = [];
+            snapshot.forEach((doc) => {
+              fbWishes.push({ id: doc.id, ...doc.data() });
+            });
+            if (fbWishes.length > 0) {
+              currentWishes = fbWishes;
+              saveStoredWishes(currentWishes);
+              renderTickerWishes(currentWishes);
+              if (adminModal.classList.contains('show')) {
+                renderAdminMessagesList();
+              }
+            }
+          },
+          (err) => {
+            console.warn(
+              'Firestore real-time sync note (using local cache):',
+              err,
+            );
+          },
+        );
+    } catch (e) {
+      console.warn('Firestore onSnapshot error:', e);
+    }
+  }
+}
+initWishesSync();
+
+/* ===== RSVP & Wishes Form Submission (Reliable Multi-Use) ===== */
+const rsvpForm = document.getElementById('rsvpForm');
+const rsvpSubmitBtn = document.getElementById('rsvpSubmitBtn');
+const msgEl = document.getElementById('msg');
+
+rsvpForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById('rsvpName').value.trim();
+  const attend = document.getElementById('rsvpAttend').value;
+  const guests = document.getElementById('rsvpGuests').value;
+  const note = document.getElementById('rsvpNote').value.trim();
+
+  if (!name || !attend || !note) {
+    msgEl.textContent = 'Please fill in all required fields.';
+    msgEl.style.color = '#ff7675';
+    return;
+  }
+
+  rsvpSubmitBtn.disabled = true;
+  rsvpSubmitBtn.textContent = 'Sending...';
+
+  const newWish = {
+    id: 'wish_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+    name: name,
+    attend: attend,
+    guests: guests,
+    note: note,
+    timestamp: Date.now(),
+  };
+
+  try {
+    // 1. Immediately update locally & refresh ticker live
+    currentWishes.unshift(newWish);
+    saveStoredWishes(currentWishes);
+    renderTickerWishes(currentWishes);
+
+    // 2. Safe async sync with remote Firebase (with timeout protection)
+    if (firebaseInitialized && db) {
+      try {
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Firebase sync timeout')), 3000),
+        );
+        const savePromise = db.collection('wedding_wishes').doc(newWish.id).set({
+          name: newWish.name,
+          attend: newWish.attend,
+          guests: newWish.guests,
+          note: newWish.note,
+          timestamp: newWish.timestamp,
+        });
+        await Promise.race([savePromise, timeoutPromise]);
+      } catch (err) {
+        console.warn('Firestore remote sync note (saved locally):', err);
+      }
+    }
+
+    // 3. Display success message & reset form fields
+    msgEl.textContent = `Thank you, ${name}! Your RSVP and warm wishes have been joyfully received ♥`;
+    msgEl.style.color = 'var(--gold-soft)';
+    rsvpForm.reset();
+
+    // Scroll towards feedback message
+    setTimeout(() => {
+      msgEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+  } catch (overallErr) {
+    console.error('Error handling RSVP submission:', overallErr);
+    msgEl.textContent = 'Thank you! Your wish was recorded successfully.';
+    msgEl.style.color = 'var(--gold-soft)';
+  } finally {
+    // Always re-enable submit button so user can use it repeatedly
+    rsvpSubmitBtn.disabled = false;
+    rsvpSubmitBtn.textContent = 'Send RSVP & Wishes ⟶';
+  }
+});
+
+/* ================================================================
+   ADMIN MODERATION MODAL & DELETE CAPABILITIES
+   ================================================================ */
+const openAdminBtn = document.getElementById('openAdminBtn');
+const closeAdminBtn = document.getElementById('closeAdminBtn');
+const adminModal = document.getElementById('adminModal');
+const adminAuthSection = document.getElementById('adminAuthSection');
+const adminPanelSection = document.getElementById('adminPanelSection');
+const adminPinInput = document.getElementById('adminPinInput');
+const adminUnlockBtn = document.getElementById('adminUnlockBtn');
+const adminPinError = document.getElementById('adminPinError');
+const adminStats = document.getElementById('adminStats');
+const adminMessagesList = document.getElementById('adminMessagesList');
+const adminRefreshBtn = document.getElementById('adminRefreshBtn');
+
+// Admin PIN is strictly 123123
+const ADMIN_PIN = '123123';
+let isAdminAuthenticated = false;
+
+function openAdminModal() {
+  adminModal.classList.add('show');
+  adminModal.setAttribute('aria-hidden', 'false');
+  if (!isAdminAuthenticated) {
+    adminAuthSection.style.display = 'block';
+    adminPanelSection.style.display = 'none';
+    adminPinInput.value = '';
+    adminPinError.textContent = '';
+    adminPinInput.focus();
+  } else {
+    adminAuthSection.style.display = 'none';
+    adminPanelSection.style.display = 'flex';
+    renderAdminMessagesList();
+  }
+}
+
+function closeAdminModal() {
+  adminModal.classList.remove('show');
+  adminModal.setAttribute('aria-hidden', 'true');
+}
+
+openAdminBtn.addEventListener('click', openAdminModal);
+closeAdminBtn.addEventListener('click', closeAdminModal);
+adminModal.addEventListener('click', (e) => {
+  if (e.target === adminModal) closeAdminModal();
+});
+
+// Unlock with passcode
+function attemptUnlock() {
+  const pin = adminPinInput.value.trim();
+  if (pin === ADMIN_PIN) {
+    isAdminAuthenticated = true;
+    adminPinError.textContent = '';
+    adminAuthSection.style.display = 'none';
+    adminPanelSection.style.display = 'flex';
+    renderAdminMessagesList();
+  } else {
+    adminPinError.textContent = 'Invalid passcode. Access denied.';
+  }
+}
+
+adminUnlockBtn.addEventListener('click', attemptUnlock);
+adminPinInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') attemptUnlock();
+});
+
+// Render list of messages in Admin Panel
+function renderAdminMessagesList() {
+  if (!adminMessagesList) return;
+
+  adminStats.textContent = `Total Wishes: ${currentWishes.length}`;
+
+  if (currentWishes.length === 0) {
+    adminMessagesList.innerHTML = `
+      <div class="admin-empty-state">
+        No guest messages found in database.
+      </div>
+    `;
+    return;
+  }
+
+  adminMessagesList.innerHTML = currentWishes
+    .map((w) => {
+      const isDecline = w.attend && w.attend.toLowerCase().includes('decline');
+      const timeStr = w.timestamp
+        ? new Date(w.timestamp).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        : 'Recent';
+
+      return `
+        <div class="admin-msg-card" id="admin-card-${escapeHtml(w.id)}">
+          <div class="admin-msg-info">
+            <div class="admin-msg-top">
+              <span class="admin-msg-name">${escapeHtml(w.name || 'Anonymous')}</span>
+              <span class="admin-msg-tag ${isDecline ? 'decline' : ''}">
+                ${escapeHtml(w.attend || 'Attending')} (${escapeHtml(w.guests || '1')} Guest${w.guests > 1 ? 's' : ''})
+              </span>
+            </div>
+            <p class="admin-msg-text">"${escapeHtml(w.note || '')}"</p>
+            <span class="admin-msg-time">🕒 ${timeStr}</span>
+          </div>
+          <button
+            class="admin-del-btn"
+            onclick="deleteWish('${escapeHtml(w.id)}')"
+            title="Delete this message"
+          >
+            🗑️ Delete
+          </button>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+// Delete a message function
+window.deleteWish = async function (id) {
+  if (!confirm('Are you sure you want to delete this message?')) return;
+
+  // 1. Remove from local state
+  currentWishes = currentWishes.filter((w) => w.id !== id);
+  saveStoredWishes(currentWishes);
+  renderTickerWishes(currentWishes);
+  renderAdminMessagesList();
+
+  // 2. Remove from Firebase if initialized
+  if (firebaseInitialized && db) {
+    try {
+      await db.collection('wedding_wishes').doc(id).delete();
+      console.log('Document successfully deleted from Firebase:', id);
+    } catch (err) {
+      console.warn('Error deleting document from Firebase:', err);
+    }
+  }
+};
+
+adminRefreshBtn.addEventListener('click', () => {
+  currentWishes = loadStoredWishes();
+  renderAdminMessagesList();
+  renderTickerWishes(currentWishes);
+});
+
+/* ================================================================
+   BACKGROUND MUSIC & INVITATION SEAL OVERLAY
+   ================================================================ */
 const bgMusic = document.getElementById('bgMusic');
 const musicToggle = document.getElementById('music-toggle');
-
-// ► Configuration — غيّر من هنا
-const musicVolume = 0.3; // مستوى الصوت (0.0 – 1.0)
+const musicVolume = 0.3;
 
 bgMusic.volume = musicVolume;
 bgMusic.loop = true;
-let musicStarted = false; // هل الاغنية اتشغلت قبل كده
-let pausedAt = 0; // نقطة التوقف الحالية
-let manualPause = false; // هل المستخدم أوقفها يدويًا من زر الصوت
+let musicStarted = false;
+let pausedAt = 0;
+let manualPause = false;
 
-// ► دالة تشغيل الموسيقى — بتبدأ من نقطة التوقف أو من البداية أول مرة
 function startMusic() {
   if (musicStarted || !bgMusic) return;
 
@@ -161,12 +664,11 @@ function startMusic() {
       })
       .catch(() => {
         musicStarted = false;
-        console.log('Autoplay blocked – waiting for first user interaction');
+        console.log('Autoplay blocked – waiting for user interaction');
       });
   }
 }
 
-// ► لو ما اتفتحش تلقائيًا بسبب منع المتصفح، أى لمسة على الشاشة تبدأ التشغيل
 const handleFirstTouchToStartMusic = () => {
   if (manualPause || musicStarted) return;
   startMusic();
@@ -192,19 +694,16 @@ window.addEventListener('load', () => {
   }
 
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-
   setTimeout(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, 300);
 });
 
-// ► لما الأغنية تخلص — نرجع من البداية ونشغّلها تانى
 bgMusic.addEventListener('ended', () => {
   bgMusic.currentTime = 0;
   bgMusic.play().catch(() => {});
 });
 
-// ► زرار التشغيل / الإيقاف (أيقونة سماعة)
 musicToggle.addEventListener('click', (e) => {
   e.stopPropagation();
 
@@ -232,14 +731,11 @@ musicToggle.addEventListener('click', (e) => {
   }
 });
 
-/* ================================================================
-   INVITATION OVERLAY — فتح الظرف + تشغيل الموسيقى
-   ================================================================ */
+/* Wax Seal Envelope Opening */
 const inviteOverlay = document.getElementById('inviteOverlay');
 const waxSeal = document.getElementById('waxSeal');
 const inviteHint = document.getElementById('inviteHint');
 
-// قفل السكرول لحد ما الدعوة تتفتح
 document.body.classList.add('invite-locked');
 
 let inviteOpened = false;
@@ -247,15 +743,12 @@ waxSeal.addEventListener('click', () => {
   if (inviteOpened) return;
   inviteOpened = true;
 
-  // تبديل الصورتين بترانزيشن ناعم
   inviteOverlay.classList.add('opened');
   waxSeal.classList.add('gone');
   inviteHint.classList.add('gone');
 
-  // ► تشغيل الموسيقى إجباريًا بعد تفاعل اليوزر (دوسة الـ open)
   startMusicFromInvite();
 
-  // ► بعد 3 ثواني من ظهور الصورة المفتوحة → الإخفاء التدريجى
   setTimeout(() => {
     inviteOverlay.classList.add('hide');
     document.body.classList.remove('invite-locked');

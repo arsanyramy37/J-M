@@ -6,17 +6,21 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>Jojo &amp; Marioom — Wedding Invitation</title>
+    <title>Jojo &amp; Marioom — Wedding Celebration</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Cinzel:wght@400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Cinzel:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
 
     <link rel="stylesheet" href="style.css" />
     <base target="_blank" />
+
+    <!-- Firebase Compat SDKs (Free Tier Ready) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   </head>
   <body>
     <!-- ================= INVITATION OVERLAY (Envelope intro) ================= -->
@@ -38,48 +42,91 @@
       </button>
       <p class="invite-hint" id="inviteHint">Tap the seal to open</p>
     </div>
-    <!-- ================= NAVBAR ================= -->
-    <nav class="navbar" id="nav">
-      <!-- روابط الديسكتوب - شمال -->
-      <ul class="nav-links-desktop">
-        <li><a href="#story">Our Story</a></li>
-        <li><a href="#church">Church</a></li>
-      </ul>
 
-      <!-- الاسم - كليكابل يرجع لفوق -->
-      <button class="nav-names" id="brandLink" aria-label="Back to top">
-        <span class="brackets">[</span>
-        Jojo <span class="amp">&amp;</span> Marioom
-        <span class="brackets">]</span>
-      </button>
+    <!-- ================= TOP HEADER (NAVBAR + LIVE WISHES TICKER) ================= -->
+    <header class="top-header-wrapper" id="headerWrapper">
+      <!-- Navbar -->
+      <nav class="navbar" id="nav">
+        <!-- Desktop Links - Left -->
+        <ul class="nav-links-desktop">
+          <li><a href="#story" target="_self">Our Story</a></li>
+          <li><a href="#church" target="_self">Church</a></li>
+        </ul>
 
-      <!-- روابط الديسكتوب - يمين -->
-      <ul class="nav-links-desktop">
-        <li><a href="#venue">Venue</a></li>
-        <li><a href="#rsvp">RSVP</a></li>
-      </ul>
+        <!-- Brand Names - Clickable to Top -->
+        <button class="nav-names" id="brandLink" aria-label="Back to top">
+          <span class="brackets">[</span>
+          Jojo <span class="amp">&amp;</span> Marioom
+          <span class="brackets">]</span>
+        </button>
 
-      <!-- زرار الصوت فى النافبار -->
-      <button class="music-toggle" id="music-toggle" aria-label="Toggle music">
-        🔊
-      </button>
+        <!-- Desktop Links - Right -->
+        <ul class="nav-links-desktop">
+          <li><a href="#venue" target="_self">Venue</a></li>
+          <li><a href="#rsvp" target="_self">RSVP</a></li>
+        </ul>
 
-      <button
-        class="burger"
-        id="burger"
-        aria-label="menu"
-        aria-expanded="false"
+        <!-- Audio Toggle Button -->
+        <button
+          class="music-toggle"
+          id="music-toggle"
+          aria-label="Toggle music"
+        >
+          🔊
+        </button>
+
+        <!-- Mobile Hamburger Button -->
+        <button
+          class="burger"
+          id="burger"
+          aria-label="Toggle Menu"
+          aria-expanded="false"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+
+      <!-- Guest Wishes Live Ticker Tape -->
+      <div
+        class="wishes-ticker"
+        id="wishesTicker"
+        aria-label="Guest Wishes Marquee"
       >
-        <span></span><span></span><span></span>
-      </button>
-    </nav>
+        <div class="ticker-badge">
+          <span class="ticker-live-dot"></span>
+          <span class="ticker-icon">💌</span>
+          <span class="ticker-label">Live Wishes</span>
+        </div>
+        <div class="ticker-viewport" id="tickerViewport">
+          <div class="ticker-track" id="tickerTrack">
+            <!-- Dynamically populated live guest wishes -->
+          </div>
+        </div>
+        <a
+          href="#rsvp"
+          class="ticker-leave-btn"
+          target="_self"
+          title="Leave Your Wish"
+        >
+          <span>✍️</span><span class="btn-text">Wish Couple</span>
+        </a>
+        <button
+          class="ticker-admin-btn"
+          id="openAdminBtn"
+          title="Admin Panel"
+          aria-label="Admin Panel"
+        >
+          🔒
+        </button>
+      </div>
+    </header>
 
-    <!-- مينيو الموبايل الموحّد (كل اللينكات مع بعض) -->
+    <!-- Mobile Menu -->
     <ul class="nav-links-mobile" id="mobileMenu">
-      <li><a href="#story">Our Story</a></li>
-      <li><a href="#church">Church</a></li>
-      <li><a href="#venue">Venue</a></li>
-      <li><a href="#rsvp">RSVP</a></li>
+      <li><a href="#story" target="_self">Our Story</a></li>
+      <li><a href="#church" target="_self">Church</a></li>
+      <li><a href="#venue" target="_self">Venue</a></li>
+      <li><a href="#rsvp" target="_self">RSVP</a></li>
     </ul>
     <div class="nav-overlay" id="navOverlay"></div>
 
@@ -100,8 +147,8 @@
       <div class="hero-script">Jojo &amp; Marioom</div>
 
       <div class="hero-meta">
-        <div class="pill">14 · 09 · 2025</div>
-        <a href="#rsvp" class="btn">Confirm Attendance ⟶</a>
+        <div class="pill">18 · 10 · 2026</div>
+        <a href="#rsvp" class="btn" target="_self">Confirm Attendance ⟶</a>
       </div>
 
       <div class="clouds">
@@ -165,9 +212,9 @@
             margin: 0 auto;
           "
         >
-          What began as a chance meeting became a friendship, and what grew from
-          that friendship became a love we will celebrate for a lifetime. Your
-          presence would make our story complete.
+          What began as a chance meeting became a lifelong journey, and what
+          grew from that friendship became a blessed love we will celebrate for
+          a lifetime. Your presence would make our special day complete.
         </p>
 
         <div
@@ -197,28 +244,29 @@
           <div class="card-img reveal from-left">
             <img
               src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=900&q=80"
-              alt="Church"
+              alt="Cathedral of the Virgin Mary and Archangel Michael"
             />
           </div>
           <div class="reveal from-right">
-            <h3>St. Mary &amp; St. George Church</h3>
+            <h3>Cathedral of the Virgin Mary &amp; Archangel Michael</h3>
             <p>
-              Join us as we exchange our vows before God and the people we
-              cherish.
+              Join us as we exchange our holy vows before God and the people we
+              cherish the most.
             </p>
-            <div class="info-row"><b>Date</b> — Sunday, 14 September 2025</div>
+            <div class="info-row"><b>Date</b> — Thursday, 18 October 2026</div>
             <div class="info-row">
-              <b>Time</b> — 5:00 PM (Doors open 4:30 PM)
+              <b>Time</b> — 6:00 PM (Doors open 5:30 PM)
             </div>
             <div class="info-row">
-              <b>Address</b> — 12 Cathedral St., Heliopolis, Cairo
+              <b>Address</b> — El Sekka El Qadima, Mansoura, Dakahlia
             </div>
             <a
               class="btn"
               style="margin-top: 18px"
               target="_blank"
-              href="https://maps.google.com/?q=St+Mary+Church+Heliopolis"
-              >Open in Maps ⟶</a
+              rel="noopener noreferrer"
+              href="https://www.google.com/maps/search/?api=1&query=%D9%83%D8%A7%D8%AA%D8%AF%D8%B1%D8%A7%D8%A6%D9%8A%D8%A9+%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%D8%A9+%D8%A7%D9%84%D8%B9%D8%B0%D8%B1%D8%A7%D8%A1+%D9%88%D8%A7%D9%84%D9%85%D9%84%D8%A7%D9%83+%D9%85%D9%8A%D8%AE%D8%A7%D8%A6%D9%8A%D9%84+%D8%A7%D9%84%D8%B3%D9%83%D8%A9+%D8%A7%D9%84%D9%82%D8%AF%D9%8A%D9%85%D8%A9+%D8%A7%D9%84%D9%85%D9%86%D8%B5%D9%88%D8%B1%D8%A9"
+              >Open in Google Maps ⟶</a
             >
           </div>
         </div>
@@ -235,19 +283,18 @@
           <div class="card-img reveal from-right">
             <img
               src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=900&q=80"
-              alt="Venue"
+              alt="Wedding Venue"
             />
           </div>
           <div class="reveal from-left">
             <h3>The Grand Victorian Ballroom</h3>
             <p>
-              An evening of music, dancing and unforgettable memories awaits.
+              An enchanting evening of music, gourmet dining, and unforgettable
+              memories awaits.
             </p>
-            <div class="info-row"><b>Date</b> — Sunday, 14 September 2025</div>
-            <div class="info-row"><b>Time</b> — 8:00 PM till late</div>
-            <div class="info-row">
-              <b>Address</b> — Nile Plaza Hotel, Garden City, Cairo
-            </div>
+            <div class="info-row"><b>Date</b> — Thursday, 18 October 2026</div>
+            <div class="info-row"><b>Time</b> — 8:30 PM till late</div>
+            <div class="info-row"><b>Address</b> — Nile Plaza, Mansoura</div>
             <div class="info-row"><b>Dress Code</b> — Formal / Black Tie</div>
             <a
               class="btn"
@@ -257,8 +304,9 @@
                 color: var(--cream);
               "
               target="_blank"
-              href="https://maps.google.com/?q=Nile+Plaza+Garden+City"
-              >Open in Maps ⟶</a
+              rel="noopener noreferrer"
+              href="https://www.google.com/maps/search/?api=1&query=Nile+Plaza+Mansoura"
+              >Open in Google Maps ⟶</a
             >
           </div>
         </div>
@@ -269,27 +317,27 @@
     <section class="section">
       <div class="container">
         <h2 class="sec-title reveal zoom">Order of the Day</h2>
-        <p class="sec-tag reveal from-bottom">Schedule</p>
+        <p class="sec-tag reveal from-bottom">Schedule of Events</p>
         <div class="timeline">
           <div class="tl-item reveal from-left">
-            <h4>4:30 PM — Guests Arrive</h4>
-            <span>Welcome at the church entrance</span>
+            <h4>4:00 PM — Welcome &amp; Gathering</h4>
+            <span>Guest arrival and welcome refreshments</span>
           </div>
           <div class="tl-item reveal from-left">
-            <h4>5:00 PM — The Ceremony</h4>
-            <span>The holy matrimony service</span>
+            <h4>6:00 PM — The Holy Matrimony</h4>
+            <span>The sacred wedding ceremony at the Cathedral</span>
           </div>
           <div class="tl-item reveal from-left">
-            <h4>7:00 PM — Photo Session</h4>
+            <h4>7:30 PM — Photo Session</h4>
             <span>Family &amp; friends portraits</span>
           </div>
           <div class="tl-item reveal from-left">
-            <h4>8:00 PM — Reception &amp; Dinner</h4>
+            <h4>8:30 PM — Reception &amp; Dinner</h4>
             <span>The Grand Victorian Ballroom</span>
           </div>
           <div class="tl-item reveal from-left">
-            <h4>10:00 PM — First Dance &amp; Cake</h4>
-            <span>Let the celebration begin</span>
+            <h4>10:30 PM — First Dance &amp; Cake Cutting</h4>
+            <span>Let the night of celebration begin</span>
           </div>
         </div>
       </div>
@@ -304,64 +352,70 @@
           <div class="reveal from-left">
             <img
               src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&q=80"
-              alt=""
+              alt="Romantic Moments"
             />
           </div>
           <div class="reveal from-bottom">
             <img
               src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600&q=80"
-              alt=""
+              alt="Wedding Details"
             />
           </div>
           <div class="reveal from-bottom">
             <img
               src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=600&q=80"
-              alt=""
+              alt="Couple Together"
             />
           </div>
           <div class="reveal from-right">
             <img
               src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=600&q=80"
-              alt=""
+              alt="Love Celebration"
             />
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= RSVP ================= -->
+    <!-- ================= RSVP & WISHES ================= -->
     <section class="section" id="rsvp">
       <div class="container">
         <h2 class="sec-title reveal zoom">Will You Join Us?</h2>
         <p class="sec-tag reveal from-bottom">
-          Kindly reply before 1 September 2025
+          Kindly reply before 18 October 2026
         </p>
 
         <form class="rsvp-form reveal from-bottom" id="rsvpForm">
-          <input type="text" name="name" placeholder="Full Name" required />
           <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
+            type="text"
+            name="name"
+            id="rsvpName"
+            placeholder="Your Full Name"
             required
+            autocomplete="name"
           />
-          <select name="attend" required>
+          <select name="attend" id="rsvpAttend" required>
             <option value="">Will you attend?</option>
-            <option>Joyfully Accept</option>
-            <option>Regretfully Decline</option>
+            <option value="Joyfully Accept">Joyfully Accept</option>
+            <option value="Regretfully Decline">Regretfully Decline</option>
           </select>
-          <select name="guests">
+          <select name="guests" id="rsvpGuests">
             <option value="1">1 Guest</option>
             <option value="2">2 Guests</option>
             <option value="3">3 Guests</option>
             <option value="4">4 Guests</option>
+            <option value="5+">5+ Guests</option>
           </select>
           <textarea
             name="note"
+            id="rsvpNote"
             rows="4"
-            placeholder="A message for the couple..."
+            placeholder="Write your congratulations or warm wishes for Jojo &amp; Marioom..."
+            required
           ></textarea>
-          <button class="btn" type="submit">Send RSVP ⟶</button>
+          <button class="btn" type="submit" id="rsvpSubmitBtn">
+            Send RSVP &amp; Wishes ⟶
+          </button>
           <p class="msg-ok" id="msg"></p>
         </form>
       </div>
@@ -378,18 +432,69 @@
           opacity: 0.7;
         "
       >
-        14 · 09 · 2025 — CAIRO
+        18 · 10 · 2026 — MANSOURA
       </p>
       <div class="divider" style="color: var(--gold)">
         <i></i><span>✦</span><i></i>
       </div>
-      <small
-        >&copy; <span id="year"></span> Designed &amp; Developed by
-        <a href="#">AR</a></small
-      >
+      <small>
+        &copy; <span id="year"></span> Designed &amp; Developed for Jojo &amp;
+        Marioom
+      </small>
     </footer>
 
+    <!-- Back to Top Button -->
     <button id="top" aria-label="back to top">↑</button>
+
+    <!-- ================= ADMIN MODERATION MODAL ================= -->
+    <div class="admin-modal-overlay" id="adminModal" aria-hidden="true">
+      <div class="admin-modal-card">
+        <div class="admin-modal-header">
+          <h3><span>🔐</span> Wishes Moderation Panel</h3>
+          <button
+            class="admin-close-btn"
+            id="closeAdminBtn"
+            aria-label="Close modal"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div id="adminAuthSection" class="admin-auth-box">
+          <p>Enter administrator passcode to access message moderation:</p>
+          <div class="admin-pin-row">
+            <input
+              type="password"
+              id="adminPinInput"
+              placeholder="Passcode"
+              maxlength="12"
+              autocomplete="off"
+            />
+            <button class="btn admin-btn-sm" id="adminUnlockBtn" type="button">
+              Unlock
+            </button>
+          </div>
+          <p class="admin-err-msg" id="adminPinError"></p>
+        </div>
+
+        <div
+          id="adminPanelSection"
+          class="admin-panel-content"
+          style="display: none"
+        >
+          <div class="admin-panel-tabs">
+            <span class="admin-stats" id="adminStats">Total Wishes: 0</span>
+            <button class="admin-btn-text" id="adminRefreshBtn" type="button">
+              ↻ Refresh List
+            </button>
+          </div>
+          <div class="admin-messages-list" id="adminMessagesList">
+            <!-- Messages listed here with instant Delete button -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Background music -->
     <audio
       id="bgMusic"
