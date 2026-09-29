@@ -205,9 +205,6 @@ function saveStoredWishes(wishes) {
   }
 }
 
-// Render Ticker Track
-const tickerTrack = document.getElementById('tickerTrack');
-
 function escapeHtml(str) {
   if (!str) return '';
   const div = document.createElement('div');
@@ -215,8 +212,9 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-/* ===== Interactive Touch/Drag Infinite Ticker Engine ===== */
+/* ===== High-Performance GPU Touch/Drag Infinite Ticker Engine ===== */
 const tickerViewport = document.getElementById('tickerViewport');
+const tickerTrack = document.getElementById('tickerTrack');
 let isTickerDragging = false;
 let tickerStartX = 0;
 let tickerStartScroll = 0;
@@ -224,23 +222,26 @@ let tickerAnimId = null;
 let isTickerPaused = false;
 let tickerResumeTimer = null;
 let currentScrollPos = 0;
-const TICKER_SCROLL_SPEED = 0.85; // pixels per animation frame (smooth float)
+const TICKER_SCROLL_SPEED = 0.9; // pixels per animation frame (smooth 60/120fps on mobile & laptop)
+
+function applyTickerTransform(x) {
+  if (tickerTrack) {
+    tickerTrack.style.transform = `translate3d(-${x}px, 0, 0)`;
+  }
+}
 
 function runTickerLoop() {
   if (tickerAnimId) cancelAnimationFrame(tickerAnimId);
 
   function step() {
-    const viewport = document.getElementById('tickerViewport');
-    const track = document.getElementById('tickerTrack');
-
-    if (viewport && track && !isTickerDragging && !isTickerPaused) {
-      const halfWidth = track.scrollWidth / 2;
-      if (halfWidth > 20) {
+    if (tickerTrack && !isTickerDragging && !isTickerPaused) {
+      const halfWidth = tickerTrack.scrollWidth / 2;
+      if (halfWidth > 10) {
         currentScrollPos += TICKER_SCROLL_SPEED;
         if (currentScrollPos >= halfWidth) {
           currentScrollPos -= halfWidth;
         }
-        viewport.scrollLeft = Math.round(currentScrollPos);
+        applyTickerTransform(currentScrollPos);
       }
     }
     tickerAnimId = requestAnimationFrame(step);
@@ -263,9 +264,8 @@ if (tickerViewport) {
     const dx = clientX - tickerStartX;
     currentScrollPos = tickerStartScroll - dx;
 
-    // Wrap around smoothly during manual scrolling
     const halfWidth = tickerTrack.scrollWidth / 2;
-    if (halfWidth > 20) {
+    if (halfWidth > 10) {
       while (currentScrollPos >= halfWidth) {
         currentScrollPos -= halfWidth;
         tickerStartScroll -= halfWidth;
@@ -275,17 +275,17 @@ if (tickerViewport) {
         tickerStartScroll += halfWidth;
       }
     }
-    tickerViewport.scrollLeft = Math.round(currentScrollPos);
+    applyTickerTransform(currentScrollPos);
   }
 
   function onDragEnd() {
     if (!isTickerDragging) return;
     isTickerDragging = false;
     if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
-    // Resume auto scroll smoothly after user lifts finger/mouse
+    // Smoothly resume scrolling after user lifts finger/mouse
     tickerResumeTimer = setTimeout(() => {
       isTickerPaused = false;
-    }, 1200);
+    }, 700);
   }
 
   // Mouse Drag Listeners (Desktop)
@@ -342,7 +342,7 @@ if (tickerViewport) {
         if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
         tickerResumeTimer = setTimeout(() => {
           isTickerPaused = false;
-        }, 500);
+        }, 400);
       }
     });
   }
@@ -364,9 +364,10 @@ function renderTickerWishes(wishes) {
         <span class="sep">✦</span>
       </div>
     `;
-    tickerTrack.innerHTML = emptyCard + emptyCard + emptyCard + emptyCard;
+    tickerTrack.innerHTML =
+      emptyCard + emptyCard + emptyCard + emptyCard + emptyCard;
     currentScrollPos = 0;
-    if (tickerViewport) tickerViewport.scrollLeft = 0;
+    applyTickerTransform(0);
     runTickerLoop();
     return;
   }
@@ -414,11 +415,14 @@ function initWishesSync() {
               fbWishes.push({ id: doc.id, ...doc.data() });
             });
             if (fbWishes.length > 0) {
-              const existingIds = new Set(fbWishes.map((w) => w.id));
-              const localUnsynced = currentWishes.filter(
-                (w) => !existingIds.has(w.id),
-              );
-              currentWishes = [...fbWishes, ...localUnsynced];
+              currentWishes = fbWishes;
+              saveStoredWishes(currentWishes);
+              renderTickerWishes(currentWishes);
+              if (adminModal && adminModal.classList.contains('show')) {
+                renderAdminMessagesList();
+              }
+            } else if (snapshot.empty) {
+              currentWishes = [];
               saveStoredWishes(currentWishes);
               renderTickerWishes(currentWishes);
               if (adminModal && adminModal.classList.contains('show')) {
