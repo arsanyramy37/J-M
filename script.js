@@ -147,12 +147,13 @@ const DEFAULT_WISHES = [];
 
 // Firebase Configuration (Replace with your Firebase Project keys if desired)
 const firebaseConfig = {
-  apiKey: 'AIzaSyA0B-DummyKeyForWeddingGuestbook-DemoApp',
-  authDomain: 'john-mariam-wedding.firebaseapp.com',
-  projectId: 'john-mariam-wedding',
-  storageBucket: 'john-mariam-wedding.appspot.com',
-  messagingSenderId: '10882348271',
-  appId: '1:10882348271:web:d87b32c8928374982',
+  apiKey: 'AIzaSyBCfDZp6s74y42BKxzB9dSL58W6ctgTQVE',
+  authDomain: 'j-m-wedding-fa104.firebaseapp.com',
+  projectId: 'j-m-wedding-fa104',
+  storageBucket: 'j-m-wedding-fa104.firebasestorage.app',
+  messagingSenderId: '457334149848',
+  appId: '1:457334149848:web:c944ba6447d9089dc5fdad',
+  measurementId: 'G-17ZC3YSDJK',
 };
 
 let db = null;
@@ -222,19 +223,24 @@ let tickerStartScroll = 0;
 let tickerAnimId = null;
 let isTickerPaused = false;
 let tickerResumeTimer = null;
-const TICKER_SCROLL_SPEED = 0.7; // pixels per animation frame
+let currentScrollPos = 0;
+const TICKER_SCROLL_SPEED = 0.85; // pixels per animation frame (smooth float)
 
 function runTickerLoop() {
   if (tickerAnimId) cancelAnimationFrame(tickerAnimId);
 
   function step() {
-    if (tickerViewport && tickerTrack && !isTickerDragging && !isTickerPaused) {
-      const halfWidth = tickerTrack.scrollWidth / 2;
+    const viewport = document.getElementById('tickerViewport');
+    const track = document.getElementById('tickerTrack');
+
+    if (viewport && track && !isTickerDragging && !isTickerPaused) {
+      const halfWidth = track.scrollWidth / 2;
       if (halfWidth > 20) {
-        tickerViewport.scrollLeft += TICKER_SCROLL_SPEED;
-        if (tickerViewport.scrollLeft >= halfWidth) {
-          tickerViewport.scrollLeft -= halfWidth;
+        currentScrollPos += TICKER_SCROLL_SPEED;
+        if (currentScrollPos >= halfWidth) {
+          currentScrollPos -= halfWidth;
         }
+        viewport.scrollLeft = Math.round(currentScrollPos);
       }
     }
     tickerAnimId = requestAnimationFrame(step);
@@ -248,52 +254,56 @@ if (tickerViewport) {
     isTickerDragging = true;
     isTickerPaused = true;
     tickerStartX = clientX;
-    tickerStartScroll = tickerViewport.scrollLeft;
+    tickerStartScroll = currentScrollPos;
     if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
   }
 
   function onDragMove(clientX) {
     if (!isTickerDragging || !tickerTrack) return;
     const dx = clientX - tickerStartX;
-    tickerViewport.scrollLeft = tickerStartScroll - dx;
+    currentScrollPos = tickerStartScroll - dx;
 
     // Wrap around smoothly during manual scrolling
     const halfWidth = tickerTrack.scrollWidth / 2;
     if (halfWidth > 20) {
-      if (tickerViewport.scrollLeft >= halfWidth) {
-        tickerViewport.scrollLeft -= halfWidth;
+      while (currentScrollPos >= halfWidth) {
+        currentScrollPos -= halfWidth;
         tickerStartScroll -= halfWidth;
-      } else if (tickerViewport.scrollLeft < 0) {
-        tickerViewport.scrollLeft += halfWidth;
+      }
+      while (currentScrollPos < 0) {
+        currentScrollPos += halfWidth;
         tickerStartScroll += halfWidth;
       }
     }
+    tickerViewport.scrollLeft = Math.round(currentScrollPos);
   }
 
   function onDragEnd() {
     if (!isTickerDragging) return;
     isTickerDragging = false;
     if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
+    // Resume auto scroll smoothly after user lifts finger/mouse
     tickerResumeTimer = setTimeout(() => {
       isTickerPaused = false;
-    }, 1800);
+    }, 1200);
   }
 
-  // Mouse Drag Listeners
+  // Mouse Drag Listeners (Desktop)
   tickerViewport.addEventListener('mousedown', (e) => {
+    tickerViewport.style.cursor = 'grabbing';
     onDragStart(e.pageX);
   });
   window.addEventListener('mousemove', (e) => {
     if (isTickerDragging) {
-      e.preventDefault();
       onDragMove(e.pageX);
     }
   });
   window.addEventListener('mouseup', () => {
+    if (tickerViewport) tickerViewport.style.cursor = 'grab';
     onDragEnd();
   });
 
-  // Touch Swipe Listeners (Mobile)
+  // Touch Swipe Listeners (Mobile & Tablets)
   tickerViewport.addEventListener(
     'touchstart',
     (e) => {
@@ -304,7 +314,7 @@ if (tickerViewport) {
     { passive: true },
   );
 
-  tickerViewport.addEventListener(
+  window.addEventListener(
     'touchmove',
     (e) => {
       if (isTickerDragging && e.touches && e.touches.length > 0) {
@@ -314,28 +324,36 @@ if (tickerViewport) {
     { passive: true },
   );
 
-  tickerViewport.addEventListener('touchend', () => {
+  window.addEventListener('touchend', () => {
     onDragEnd();
   });
 
-  // Hover Pause on Desktop
-  tickerViewport.addEventListener('mouseenter', () => {
-    isTickerPaused = true;
+  window.addEventListener('touchcancel', () => {
+    onDragEnd();
   });
-  tickerViewport.addEventListener('mouseleave', () => {
-    if (!isTickerDragging) {
-      if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
-      tickerResumeTimer = setTimeout(() => {
-        isTickerPaused = false;
-      }, 600);
-    }
-  });
+
+  // Hover Pause ONLY on devices with actual mouse (never freeze on mobile taps)
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    tickerViewport.addEventListener('mouseenter', () => {
+      isTickerPaused = true;
+    });
+    tickerViewport.addEventListener('mouseleave', () => {
+      if (!isTickerDragging) {
+        if (tickerResumeTimer) clearTimeout(tickerResumeTimer);
+        tickerResumeTimer = setTimeout(() => {
+          isTickerPaused = false;
+        }, 500);
+      }
+    });
+  }
 }
 
 function renderTickerWishes(wishes) {
   if (!tickerTrack) return;
 
-  const validWishes = wishes.filter((w) => w.note && w.note.trim().length > 0);
+  const validWishes = wishes.filter(
+    (w) => w && w.note && w.note.trim().length > 0,
+  );
   if (validWishes.length === 0) {
     const emptyCard = `
       <div class="ticker-item floating-wish floating-welcome">
@@ -346,7 +364,9 @@ function renderTickerWishes(wishes) {
         <span class="sep">✦</span>
       </div>
     `;
-    tickerTrack.innerHTML = emptyCard + emptyCard + emptyCard;
+    tickerTrack.innerHTML = emptyCard + emptyCard + emptyCard + emptyCard;
+    currentScrollPos = 0;
+    if (tickerViewport) tickerViewport.scrollLeft = 0;
     runTickerLoop();
     return;
   }
@@ -367,7 +387,7 @@ function renderTickerWishes(wishes) {
     .join('');
 
   // Repeat sufficiently for an infinite loop with zero jump
-  const repeatCount = Math.max(2, Math.ceil(8 / validWishes.length));
+  const repeatCount = Math.max(4, Math.ceil(12 / validWishes.length));
   let finalTrackHtml = '';
   for (let i = 0; i < repeatCount * 2; i++) {
     finalTrackHtml += itemsHtml;
@@ -386,7 +406,7 @@ function initWishesSync() {
     try {
       db.collection('wedding_wishes')
         .orderBy('timestamp', 'desc')
-        .limit(50)
+        .limit(100)
         .onSnapshot(
           (snapshot) => {
             const fbWishes = [];
@@ -394,17 +414,21 @@ function initWishesSync() {
               fbWishes.push({ id: doc.id, ...doc.data() });
             });
             if (fbWishes.length > 0) {
-              currentWishes = fbWishes;
+              const existingIds = new Set(fbWishes.map((w) => w.id));
+              const localUnsynced = currentWishes.filter(
+                (w) => !existingIds.has(w.id),
+              );
+              currentWishes = [...fbWishes, ...localUnsynced];
               saveStoredWishes(currentWishes);
               renderTickerWishes(currentWishes);
-              if (adminModal.classList.contains('show')) {
+              if (adminModal && adminModal.classList.contains('show')) {
                 renderAdminMessagesList();
               }
             }
           },
           (err) => {
             console.warn(
-              'Firestore real-time sync note (using local cache):',
+              'Firestore sync note (using reliable local cache):',
               err,
             );
           },
@@ -459,13 +483,16 @@ rsvpForm.addEventListener('submit', async (e) => {
         const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Firebase sync timeout')), 3000),
         );
-        const savePromise = db.collection('wedding_wishes').doc(newWish.id).set({
-          name: newWish.name,
-          attend: newWish.attend,
-          guests: newWish.guests,
-          note: newWish.note,
-          timestamp: newWish.timestamp,
-        });
+        const savePromise = db
+          .collection('wedding_wishes')
+          .doc(newWish.id)
+          .set({
+            name: newWish.name,
+            attend: newWish.attend,
+            guests: newWish.guests,
+            note: newWish.note,
+            timestamp: newWish.timestamp,
+          });
         await Promise.race([savePromise, timeoutPromise]);
       } catch (err) {
         console.warn('Firestore remote sync note (saved locally):', err);
