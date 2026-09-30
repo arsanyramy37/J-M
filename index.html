@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Cinzel:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Cinzel:wght@400;600;700&family=Birthstone&family=Edu+QLD+Hand:wght@400..700&family=Harmattan:wght@400;700&family=Zain:wght@400;700;800&display=swap"
       rel="stylesheet"
     />
 
@@ -22,28 +22,47 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <base target="_blank" />
+    <base target="_blank" />
   </head>
   <body>
     <!-- ================= INVITATION OVERLAY (Envelope intro) ================= -->
     <div class="invite-overlay" id="inviteOverlay">
-      <div class="invite-stage">
-        <img
-          src="assets/imgs/closed.png"
-          alt="Sealed invitation"
-          class="invite-img invite-closed"
-          draggable="false"
-        />
-        <img
-          src="assets/imgs/opened.png"
-          alt="Opened invitation"
-          class="invite-img invite-opened"
-          draggable="false"
-        />
+      <p class="invite-title">You're invited to our wedding</p>
+      <div
+        class="invite-stage"
+        id="inviteStage"
+        title="Click to open"
+        role="button"
+        aria-label="Open the invitation"
+      >
+        <picture>
+          <source srcset="assets/imgs/closed.webp" type="image/webp" />
+          <img
+            src="assets/imgs/closed.png"
+            alt="Sealed invitation"
+            class="invite-img invite-closed"
+            draggable="false"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
+        <picture>
+          <source srcset="assets/imgs/opened.webp" type="image/webp" />
+          <img
+            src="assets/imgs/opened.png"
+            alt="Opened invitation"
+            class="invite-img invite-opened"
+            draggable="false"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
         <button class="wax-seal" id="waxSeal" aria-label="Open the invitation">
-          <span>Open</span>
+          <span class="seal-cta">Click here</span>
+          <span class="seal-arrow">↑</span>
         </button>
       </div>
-      <p class="invite-hint" id="inviteHint">Tap the seal to open</p>
+      <p class="invite-tagline">JOIN US AS OUR FOREVER BEGINS</p>
     </div>
 
     <!-- ================= TOP HEADER (NAVBAR + LIVE WISHES TICKER) ================= -->
@@ -151,13 +170,13 @@
             />
           </div>
           <div class="hero-event-content">
-            <h3 class="hero-event-title">The Grand Victorian Ballroom</h3>
-            <p class="hero-event-loc">نايل بلازا — المنصورة</p>
+            <h3 class="hero-event-title">Capital palace, Talkha</h3>
+            <p class="hero-event-loc">كابيتال القوات المسحلة , طلخا</p>
             <div class="hero-event-meta">
-              <span class="hero-event-time">الساعة ٨:٣٠ مساءً</span>
+              <span class="hero-event-time">الساعة ٧ مساءًا</span>
             </div>
             <a
-              href="https://www.google.com/maps/search/?api=1&query=Nile+Plaza+Mansoura"
+              href="https://www.google.com/maps/search/?api=1&query=393V+X8V+Capital+Palace+3551+Talkha"
               target="_blank"
               rel="noopener noreferrer"
               class="hero-map-btn"
@@ -186,13 +205,13 @@
             />
           </div>
           <div class="hero-event-content">
-            <h3 class="hero-event-title">كاتدرائية السيدة العذراء والملاك</h3>
+            <h3 class="hero-event-title">
+              كاتدرائية السيدة العذراء مريم والملاك ميخائيل
+            </h3>
             <p class="hero-event-loc">السكة الجديدة — المنصورة</p>
             <div class="hero-event-meta">
-              <span class="hero-event-date">الخميس، ١٨ أكتوبر ٢٠٢٦</span>
-              <span class="hero-event-time"
-                >الساعة ٦:٠٠ مساءً (الأبواب ٥:٣٠)</span
-              >
+              <span class="hero-event-date">الاحد, ١٨ أكتوبر ٢٠٢٦</span>
+              <span class="hero-event-time">الساعة ٤ مساءًا </span>
             </div>
             <a
               href="https://www.google.com/maps/search/?api=1&query=%D9%83%D8%A7%D8%AA%D8%AF%D8%B1%D8%A7%D8%A6%D9%8A%D8%A9+%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%D8%A9+%D8%A7%D9%84%D8%B9%D8%B0%D8%B1%D8%A7%D8%A1+%D9%88%D8%A7%D9%84%D9%85%D9%84%D8%A7%D9%83+%D9%85%D9%8A%D8%AE%D8%A7%D8%A6%D9%8A%D9%84+%D8%A7%D9%84%D8%B3%D9%83%D8%A9+%D8%A7%D9%84%D9%82%D8%AF%D9%8A%D9%85%D8%A9+%D8%A7%D9%84%D9%85%D9%86%D8%B5%D9%88%D8%B1%D8%A9"
@@ -270,27 +289,20 @@
     <section class="section dark-alt" id="timeline">
       <div class="container">
         <h2 class="sec-title reveal zoom">برنامج اليوم</h2>
+        <br />
         <p class="sec-tag reveal from-bottom">Order of the Day</p>
         <div class="timeline">
           <div class="tl-item reveal from-left">
-            <h4>4:00 م — استقبال الضيوف</h4>
+            <h4>Opening Gates 4:00pm</h4>
             <span>وقت وصول الأهل والأحباب</span>
           </div>
           <div class="tl-item reveal from-left">
-            <h4>6:00 م — القداس الإلهي</h4>
-            <span>احتفالية الزواج المقدس في الكاتدرائية</span>
+            <h4>Wedding Ceremony 4:30pm</h4>
+            <span>صلاة الاكليل</span>
           </div>
           <div class="tl-item reveal from-left">
-            <h4>7:30 م — جلسة التصوير</h4>
-            <span>صور تذكارية مع العائلة والأصدقاء</span>
-          </div>
-          <div class="tl-item reveal from-left">
-            <h4>8:30 م — حفل العشاء</h4>
-            <span>Grand Victorian Ballroom — نايل بلازا</span>
-          </div>
-          <div class="tl-item reveal from-left">
-            <h4>10:30 م — أول رقصة وتقطيع التورتة</h4>
-            <span>يبدأ الاحتفال ✨</span>
+            <h4>Venue 7:00pm</h4>
+            <span>القاعة</span>
           </div>
         </div>
       </div>
@@ -300,6 +312,7 @@
     <section class="section light" id="rsvp">
       <div class="container">
         <h2 class="sec-title reveal zoom">هتيجي معانا؟</h2>
+        <br />
         <p class="sec-tag reveal from-bottom">ابعتلنا ردك قبل ١٨ أكتوبر ٢٠٢٦</p>
 
         <form class="rsvp-form reveal from-bottom" id="rsvpForm">

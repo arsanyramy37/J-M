@@ -251,22 +251,6 @@ body::before {
   opacity: 0.22;
   z-index: -2;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.15) 0%,
-    rgba(0, 0, 0, 0.85) 18%,
-    rgba(0, 0, 0, 1) 50%,
-    rgba(0, 0, 0, 0.85) 80%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.15) 0%,
-    rgba(0, 0, 0, 0.85) 18%,
-    rgba(0, 0, 0, 1) 50%,
-    rgba(0, 0, 0, 0.85) 80%,
-    rgba(0, 0, 0, 0) 100%
-  );
   transition: opacity 0.5s var(--ease);
 }
 .hero::after {
@@ -427,7 +411,7 @@ body::before {
   width: 100%;
 }
 .hero-event-title {
-  font-family: 'Cinzel', 'Cairo', serif;
+  font-family: 'Zain', 'Cinzel', serif;
   font-size: clamp(16px, 1.5vw, 19px);
   font-weight: 600;
   color: var(--gold-soft);
@@ -436,6 +420,7 @@ body::before {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 .hero-event-loc {
+  font-family: 'Harmattan', 'Cormorant Garamond', serif;
   font-size: clamp(14px, 1.1vw, 16px);
   color: var(--cream);
   opacity: 0.95;
@@ -535,7 +520,7 @@ body::before {
   transition: 0.35s var(--ease);
 }
 .sendButton {
-  background-color: var(--burgundy-light);
+  background-color: var(--burgundy-deep);
   color: var(--white);
   border: 0;
 }
@@ -597,7 +582,7 @@ body::before {
   width: 100%;
 }
 .sec-title {
-  font-family: 'Tangerine', cursive;
+  font-family: 'Tangerine', 'Zain', cursive;
   font-size: clamp(48px, 9vw, 104px);
   text-align: center;
   line-height: 1;
@@ -605,7 +590,7 @@ body::before {
 }
 .sec-tag {
   text-align: center;
-  font-family: 'Cinzel', serif;
+  font-family: 'Cinzel', 'Harmattan', serif;
   letter-spacing: 5px;
   font-size: clamp(10px, 1.5vw, 12px);
   text-transform: uppercase;
@@ -827,11 +812,12 @@ body::before {
   color: var(--gold);
 }
 .tl-item h4 {
-  font-family: 'Cinzel', serif;
+  font-family: 'Zain', 'Cinzel', serif;
   font-size: clamp(15px, 2vw, 17px);
   letter-spacing: 1px;
 }
 .tl-item span {
+  font-family: 'Harmattan', 'Cormorant Garamond', serif;
   font-size: clamp(15px, 2vw, 17px);
   opacity: 0.75;
 }
@@ -851,7 +837,7 @@ body::before {
   background: transparent;
   border: 1px solid rgba(201, 162, 75, 0.6);
   color: inherit;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Harmattan', 'Cormorant Garamond', serif;
   font-size: 16px;
   border-radius: 3px;
   min-height: 48px; /* FIX: touch friendly */
@@ -1039,10 +1025,19 @@ footer a {
     padding: 130px 16px 170px;
   }
   .hero::before {
-    background-image: url('assets/imgs/background-responsive.jpg');
-    background-size: cover;
-    background-position: center 20%;
-    opacity: 0.28;
+    background: url('assets/imgs/background-responsive.jpg') center center /
+      cover no-repeat;
+    opacity: 0.18;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .hero::after {
+    background: radial-gradient(
+      ellipse at 50% 50%,
+      transparent 5%,
+      rgba(75, 10, 23, 0.25) 60%,
+      rgba(75, 10, 23, 0.65) 100%
+    );
   }
   .hero-stage {
     gap: 24px;
@@ -1187,19 +1182,38 @@ footer a {
 /* حاوية الظرف - مربعة 1:1 بنفس أبعاد الصورتين الأصلية تماماً (1500x1500) */
 .invite-stage {
   position: relative;
-  width: min(88vw, 78vh, 700px);
+  /* 100dvh ناقص مساحة النصوص — الظرف مهما صغرت الشاشة ميعملش تداخل */
+  width: min(88vw, max(230px, calc(100dvh - 300px)), 700px);
   aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
   -webkit-user-select: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.35s var(--ease);
+}
+.invite-stage:hover {
+  transform: scale(1.015);
+}
+.invite-stage:active {
+  transform: scale(0.985);
+}
+.invite-stage.gone {
+  pointer-events: none;
 }
 
 /* الصورتين بنفس الحجم والمساحة تماماً بدون أى اختلاف فى السكيل */
-.invite-img {
+/* picture elements need to fill the stage like the old img did */
+.invite-stage picture {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.invite-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -1212,11 +1226,15 @@ footer a {
 }
 .invite-closed {
   opacity: 1;
+}
+.invite-stage picture:has(.invite-closed) {
   z-index: 1;
+}
+.invite-stage picture:has(.invite-opened) {
+  z-index: 2;
 }
 .invite-opened {
   opacity: 0;
-  z-index: 2;
 }
 .invite-overlay.opened .invite-closed {
   opacity: 0;
@@ -1225,93 +1243,101 @@ footer a {
   opacity: 1;
 }
 
-/* --- ختم الشمع (زرار Open) - مظبوط تماماً فوق مكان الختم فى الظرف المقفول --- */
-.wax-seal {
-  position: absolute;
-  left: 50%;
-  top: 53.6%;
-  transform: translate(-50%, -50%);
-  width: clamp(64px, 12vw, 88px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 0;
-  cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: clamp(10px, 1.5vw, 13px);
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
+/* --- عنوان فوق الظرف — Birthstone، متسنتر --- */
+.invite-title {
+  font-family: 'Birthstone', 'Tangerine', cursive;
+  font-size: clamp(26px, 6vw, 58px);
+  max-width: 92vw;
+  overflow-wrap: break-word;
   color: var(--gold-soft);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
-  background:
-    radial-gradient(
-      circle at 32% 26%,
-      rgba(255, 255, 255, 0.22),
-      transparent 42%
-    ),
-    radial-gradient(
-      circle at 50% 50%,
-      var(--burgundy-light) 0%,
-      var(--burgundy) 52%,
-      var(--burgundy-deep) 100%
-    );
-  box-shadow:
-    0 14px 32px rgba(0, 0, 0, 0.55),
-    inset 0 3px 6px rgba(255, 255, 255, 0.2),
-    inset 0 -8px 14px rgba(0, 0, 0, 0.45);
+  letter-spacing: 1px;
+  text-align: center;
+  width: 100%;
+  margin-bottom: clamp(8px, 2vh, 22px);
+  opacity: 0.95;
+  z-index: 5;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+  line-height: 1.15;
+}
+
+/* --- تلميح تحت الظرف (Click here + سهم) --- */
+.invite-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-top: clamp(10px, 2.5vh, 22px);
+  z-index: 5;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition:
-    transform 0.35s var(--ease),
     opacity 0.6s var(--ease),
     visibility 0.6s;
-  animation: sealPulse 2.4s ease-in-out infinite;
-  z-index: 10;
 }
-/* إطار ذهبى داخلى للختم */
-.wax-seal::before {
-  content: '';
-  position: absolute;
-  inset: 9px;
-  border-radius: 50%;
-  border: 1px solid rgba(201, 162, 75, 0.6);
-  box-shadow:
-    inset 0 0 0 3px rgba(75, 10, 23, 0.55),
-    0 0 12px rgba(201, 162, 75, 0.25);
-  pointer-events: none;
-}
-.wax-seal span {
-  position: relative;
-  z-index: 1;
-}
-.wax-seal:hover,
-.wax-seal:focus-visible {
-  transform: translate(-50%, -50%) scale(1.08);
-  outline: none;
-}
-.wax-seal:active {
-  transform: translate(-50%, -50%) scale(0.95);
-}
-.wax-seal.gone {
+.invite-bottom.gone {
   opacity: 0;
   visibility: hidden;
-  pointer-events: none;
-  transform: translate(-50%, -50%) scale(0.6);
 }
-@keyframes sealPulse {
+.invite-arrow {
+  font-size: clamp(22px, 4vw, 32px);
+  color: var(--gold);
+  text-shadow: 0 0 12px rgba(201, 162, 75, 0.6);
+  animation: arrowBounce 1.4s ease-in-out infinite;
+  line-height: 1;
+  /* السهم لازم يباونس ناحية الظرف (لفوق) */
+  display: inline-block;
+}
+@keyframes arrowBounce {
   0%,
   100% {
-    box-shadow:
-      0 14px 32px rgba(0, 0, 0, 0.55),
-      inset 0 3px 6px rgba(255, 255, 255, 0.2),
-      inset 0 -8px 14px rgba(0, 0, 0, 0.45),
-      0 0 0 0 rgba(201, 162, 75, 0.45);
+    transform: translateY(0);
   }
   50% {
-    box-shadow:
-      0 14px 32px rgba(0, 0, 0, 0.55),
-      inset 0 3px 6px rgba(255, 255, 255, 0.2),
-      inset 0 -8px 14px rgba(0, 0, 0, 0.45),
-      0 0 0 20px rgba(201, 162, 75, 0);
+    transform: translateY(-8px);
   }
 }
+.invite-cta {
+  font-family: 'Edu QLD Hand', 'Cormorant Garamond', cursive;
+  font-size: clamp(17px, 2.6vw, 23px);
+  letter-spacing: 0.5px;
+  color: var(--cream);
+  opacity: 0.95;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* --- شعار تحت --- */
+.invite-tagline {
+  font-family: 'Birthstone', 'Tangerine', cursive;
+  font-size: clamp(16px, 4vw, 30px);
+  max-width: 94vw;
+  overflow-wrap: break-word;
+  letter-spacing: 1.5px;
+  color: var(--gold-soft);
+  opacity: 0.85;
+  margin-top: clamp(6px, 1.5vh, 14px);
+  text-align: center;
+  width: 100%;
+  padding: 0 12px;
+  z-index: 5;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes hintFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* قفل السكرول خلف الأوفرلاى */
+body.invite-locked {
+  overflow: hidden;
+}
+
+/* --- ختم الشمع (زرار Open) - مظبوط تماماً فوق مكان الختم فى الظرف المقفول --- */
 
 /* --- تلميح أسفل الشاشة --- */
 .invite-hint {
@@ -1352,6 +1378,109 @@ footer a {
 /* قفل السكرول خلف الأوفرلاى */
 body.invite-locked {
   overflow: hidden;
+}
+
+/* --- ختم الشمع — نفس الشكل الأصلى، جواه Click here + سهم باونس --- */
+.wax-seal {
+  position: absolute;
+  left: 50%;
+  top: 53.6%; /* فوق الختم المطبوع فى الظرف بالظبط */
+  transform: translate(-50%, -50%);
+  width: clamp(86px, 15vw, 120px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-family: 'Edu QLD Hand', 'Cormorant Garamond', cursive;
+  color: var(--gold-soft);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+  background:
+    radial-gradient(
+      circle at 32% 26%,
+      rgba(255, 255, 255, 0.22),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      var(--burgundy-light) 0%,
+      var(--burgundy) 52%,
+      var(--burgundy-deep) 100%
+    );
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.55),
+    inset 0 3px 6px rgba(255, 255, 255, 0.2),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.45);
+  transition:
+    transform 0.35s var(--ease),
+    opacity 0.6s var(--ease),
+    visibility 0.6s;
+  animation: sealPulse 2.4s ease-in-out infinite;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+}
+/* إطار ذهبى داخلى للختم */
+.wax-seal::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 162, 75, 0.6);
+  box-shadow:
+    inset 0 0 0 3px rgba(75, 10, 23, 0.55),
+    0 0 12px rgba(201, 162, 75, 0.25);
+  pointer-events: none;
+}
+.seal-cta {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(10px, 1.6vw, 13px);
+  line-height: 1.1;
+  letter-spacing: 0.5px;
+}
+.seal-arrow {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(12px, 2vw, 16px);
+  color: var(--gold);
+  text-shadow: 0 0 10px rgba(201, 162, 75, 0.6);
+  animation: arrowBounce 1.4s ease-in-out infinite;
+  display: inline-block;
+}
+.wax-seal:hover,
+.wax-seal:focus-visible {
+  transform: translate(-50%, -50%) scale(1.08);
+  outline: none;
+}
+.wax-seal:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+.wax-seal.gone {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.6);
+}
+@keyframes sealPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.55),
+      inset 0 3px 6px rgba(255, 255, 255, 0.2),
+      inset 0 -8px 14px rgba(0, 0, 0, 0.45),
+      0 0 0 0 rgba(201, 162, 75, 0.45);
+  }
+  50% {
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.55),
+      inset 0 3px 6px rgba(255, 255, 255, 0.2),
+      inset 0 -8px 14px rgba(0, 0, 0, 0.45),
+      0 0 0 20px rgba(201, 162, 75, 0);
+  }
 }
 
 /* ================================================================
@@ -1950,4 +2079,24 @@ body.invite-locked {
   .admin-messages-list {
     padding-right: 0;
   }
+}
+
+/* تأمين عام: مفيش أي نص يطلع بره الشاشة نهائيًا */
+img,
+svg {
+  max-width: 100%;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+span,
+a,
+button,
+input,
+select,
+textarea {
+  overflow-wrap: break-word;
+  max-width: 100%;
 }

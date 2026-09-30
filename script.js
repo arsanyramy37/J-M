@@ -764,28 +764,34 @@ musicToggle.addEventListener('click', (e) => {
 
 /* Wax Seal Envelope Opening */
 const inviteOverlay = document.getElementById('inviteOverlay');
+const inviteStage = document.getElementById('inviteStage');
 const waxSeal = document.getElementById('waxSeal');
-const inviteHint = document.getElementById('inviteHint');
 
 document.body.classList.add('invite-locked');
 
 let inviteOpened = false;
-waxSeal.addEventListener('click', () => {
+function openInvite() {
   if (inviteOpened) return;
   inviteOpened = true;
 
   inviteOverlay.classList.add('opened');
+  inviteStage.classList.add('gone');
   waxSeal.classList.add('gone');
-  inviteHint.classList.add('gone');
 
+  // تشغيل الموسيقى إجباريًا بعد تفاعل اليوزر
   startMusicFromInvite();
 
+  // بعد 3 ثواني من ظهور الصورة المفتوحة → الإخفاء التدريجى
   setTimeout(() => {
     inviteOverlay.classList.add('hide');
     document.body.classList.remove('invite-locked');
     setTimeout(() => inviteOverlay.remove(), 1200);
   }, 3000);
-});
+}
+
+// الضغط على الختم أو على الظرف نفسه بيفتح الدعوة
+waxSeal.addEventListener('click', openInvite);
+inviteStage.addEventListener('click', openInvite);
 
 function startMusicFromInvite() {
   if (!bgMusic) return;
