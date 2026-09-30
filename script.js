@@ -377,7 +377,6 @@ function renderTickerWishes(wishes) {
     .map(
       (w) => `
       <div class="ticker-item floating-wish" data-id="${escapeHtml(w.id || '')}">
-        <span class="v-crest">⚜</span>
         <span class="sender-name">${escapeHtml(w.name)}</span>
         <span class="v-divider">·</span>
         <span class="msg-text">“${escapeHtml(w.note)}”</span>
@@ -786,7 +785,7 @@ function openInvite() {
     inviteOverlay.classList.add('hide');
     document.body.classList.remove('invite-locked');
     setTimeout(() => inviteOverlay.remove(), 1200);
-  }, 3000);
+  }, 2000);
 }
 
 // الضغط على الختم أو على الظرف نفسه بيفتح الدعوة
