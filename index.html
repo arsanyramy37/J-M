@@ -27,7 +27,10 @@
   <body>
     <!-- ================= INVITATION OVERLAY (Envelope intro) ================= -->
     <div class="invite-overlay" id="inviteOverlay">
-      <p class="invite-title">You're invited to our wedding</p>
+      <p class="invite-title">
+        <span style="font-size: medium">You're invited to</span><br />
+        <span>our wedding</span>
+      </p>
       <div
         class="invite-stage"
         id="inviteStage"
@@ -61,7 +64,10 @@
           <span class="seal-cta">Click here</span>
         </button>
       </div>
-      <p class="invite-tagline">JOIN US AS OUR FOREVER BEGINS</p>
+      <p class="invite-tagline">
+        JOIN US <br />
+        <span style="font-size: larger">AS OUR FOREVER BEGINS</span>
+      </p>
     </div>
 
     <!-- ================= TOP HEADER (NAVBAR + LIVE WISHES TICKER) ================= -->
@@ -170,7 +176,7 @@
           </div>
           <div class="hero-event-content">
             <h3 class="hero-event-title">Capital palace, Talkha</h3>
-            <p class="hero-event-loc">كابيتال القوات المسحلة , طلخا</p>
+            <p class="hero-event-loc">كابيتال القوات المسلحة — طلخا</p>
             <div class="hero-event-meta">
               <span class="hero-event-time">الساعة ٧ مساءًا</span>
             </div>
@@ -328,18 +334,11 @@
             <option value="Joyfully Accept">أيوه، هاجى</option>
             <option value="Regretfully Decline">مش هعرف , آسف</option>
           </select>
-          <select name="guests" id="rsvpGuests">
-            <option value="1">١ ضيف</option>
-            <option value="2">٢ ضيوف</option>
-            <option value="3">٣ ضيوف</option>
-            <option value="4">٤ ضيوف</option>
-            <option value="5+">٥+ ضيوف</option>
-          </select>
           <textarea
             name="note"
             id="rsvpNote"
             rows="4"
-            placeholder="اكتب تهنئتك ومباركتك لجوجو ومريوم..."
+            placeholder="اكتب تهنئتك لجوجو ومريوم..."
             required
           ></textarea>
           <button class="btn sendButton" type="submit" id="rsvpSubmitBtn">

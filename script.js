@@ -453,7 +453,6 @@ rsvpForm.addEventListener('submit', async (e) => {
 
   const name = document.getElementById('rsvpName').value.trim();
   const attend = document.getElementById('rsvpAttend').value;
-  const guests = document.getElementById('rsvpGuests').value;
   const note = document.getElementById('rsvpNote').value.trim();
 
   if (!name || !attend || !note) {
@@ -469,7 +468,6 @@ rsvpForm.addEventListener('submit', async (e) => {
     id: 'wish_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
     name: name,
     attend: attend,
-    guests: guests,
     note: note,
     timestamp: Date.now(),
   };
@@ -492,7 +490,6 @@ rsvpForm.addEventListener('submit', async (e) => {
           .set({
             name: newWish.name,
             attend: newWish.attend,
-            guests: newWish.guests,
             note: newWish.note,
             timestamp: newWish.timestamp,
           });
@@ -620,7 +617,7 @@ function renderAdminMessagesList() {
             <div class="admin-msg-top">
               <span class="admin-msg-name">${escapeHtml(w.name || 'Anonymous')}</span>
               <span class="admin-msg-tag ${isDecline ? 'decline' : ''}">
-                ${escapeHtml(w.attend || 'Attending')} (${escapeHtml(w.guests || '1')} Guest${w.guests > 1 ? 's' : ''})
+                ${escapeHtml(w.attend || 'Attending')} 
               </span>
             </div>
             <p class="admin-msg-text">"${escapeHtml(w.note || '')}"</p>
